@@ -1156,10 +1156,30 @@ components:
         - institution_id: 2
           institution_code: "INST2"
 
-    Cllasification:
+    Identification_info:
       type: object
       properties:
-        cllasification_id:
+        identification_id:
+          type: integer
+          example: 1
+          readOnly: true
+        identification_user_id:
+          type: integer
+          example: 1
+        identified_at:
+          type: string
+          format: date-time
+          example: "2024-01-01T00:00:00Z"
+        source_info:
+          type: string
+          example: "sample identification sorce paper"
+
+
+
+    Classification:
+      type: object
+      properties:
+        classification_id:
           type: integer
           example: 1
           readOnly: true
@@ -1245,10 +1265,10 @@ components:
         sex:
           type: string 
           example: "male"
-        body_lengh:
+        body_length:
           type: string
           example: "10mm"
-        creawted_at:
+        created_at:
           type: string
           format: date-time
           example: "2024-01-01T00:00:00Z"
@@ -1256,7 +1276,7 @@ components:
           type: integer
           example: 1
 # place 
-        latigude:
+        latitude:
           type: number
           format: float
           example: 35.6895
@@ -1273,96 +1293,19 @@ components:
           type: string
           example: "sample note"
 
-# cllasification 
-        cllasification_id:
-          type: integer
-          example: 1
-          readOnly: true
-        species:
-          type: string
-          example: "fetida"
-        genus:
-          type: string
-          example: "Eisenia"
-        family:
-          type: string
-          example: "Lumbricidae"
-        order:
-          type: string
-          example: "Haplotaxida"
-        class:
-          type: string
-          example: "Clitellata"
-        phylum:
-          type: string
-          example: "Annelida"
-        kingdom:
-          type: string
-          example: "Animalia"
-        others: # others contain verious sub-classificastion
-          type: string
-          example: "subspecies"
+# classification 
+        classification:
+          $ref: '#/components/schemas/Classification'
         
 # observation
         observation:
-          properties:
-            observation_id:
-              type: integer
-              example: 1
-              readOnly: true
-            observation_user_id:
-              type: integer
-              example: 1 
-            observation_method_id:
-              type: integer
-              example: 1 
-            behavior:
-              type: string
-              example: "sample behavior"
-            observed_at:
-              type: string
-              format: date-time
-              example: "2024-01-01T00:00:00Z"
+          $ref: '#/components/schemas/Observation_info'
 # specimen
         specimen:
-          properties:
-            specimen_id:
-              type: integer
-              example: 1
-              readOnly: true
-            specimen_user_id:
-              type: integer
-              example: 1
-            specimen_methods_id:
-              type: integer
-              example: 1
-            specimen_created_at:
-              type: string
-              format: date-time
-              example: "2024-01-01T00:00:00Z"
-            institution_id:
-              type: integer
-              example: 1
-            collection_id:
-              type: string
-              example: "C-001"
+          $ref: '#/components/schemas/Specimen_info'
 # identification
         identification:
-          properties:
-            identification_id:
-              type: integer
-              example: 1
-              readOnly: true
-            identification_user_id:
-              type: integer
-              example: 1
-            identified_at:
-              type: string
-              format: date-time
-              example: "2024-01-01T00:00:00Z"
-            source_info:
-              type: string
-              example: "sample identification sorce paper"
+          $ref: '#/components/schemas/Identification_info'
 
     Occurrences:
       type: array
@@ -1508,4 +1451,3 @@ components:
         source_info:
           type: string
           example: "sample identification sorce paper"
-
