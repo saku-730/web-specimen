@@ -63,7 +63,6 @@ func (m *mockOccurrenceService) CreateOccurrence(req *model.OccurrenceCreate) (*
 // --- ステップ2: テスト関数を書くのだ ---
 
 func TestGetCreatePage(t *testing.T) {
-	// Ginをテストモードにするおまじない
 	gin.SetMode(gin.TestMode)
 
 	t.Run("成功ケース", func(t *testing.T) {
