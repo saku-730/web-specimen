@@ -1,4 +1,4 @@
-// configs/config.go
+// config/config.go
 package configs
 
 import (
@@ -16,6 +16,7 @@ type Config struct {
 	DBName     string `mapstructure:"DB_NAME"`
 	DBSSLMode  string `mapstructure:"DB_SSLMODE"`
 	ServerPort string `mapstructure:"SERVER_PORT"`
+	JWTSecret  string `mapstructure:"JWT_SECRET_KEY"`
 }
 
 // DSN:database source name

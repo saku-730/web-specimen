@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
-	"github.com/saku-730/web-specimen/backend/configs"
+	"github.com/saku-730/web-specimen/backend/config"
 	"github.com/saku-730/web-specimen/backend/internal/model"
 	"github.com/saku-730/web-specimen/backend/internal/repository"
 	"github.com/saku-730/web-specimen/backend/internal/util"
