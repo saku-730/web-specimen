@@ -9,7 +9,10 @@ import (
 )
 
 func SetupRouter(
-	occHandler handler.OccrrenceHandler,
+	authHandler handler.AuthHandler,
+	occHandler handler.OccurrenceHandler,
+	authMiddleware middleware.AuthMiddleware,
+
 )*gin.Engine {
 	router := gin.Default()
 
@@ -17,7 +20,7 @@ func SetupRouter(
 	config := cors.DefaultConfig()
 	config.AllowOrigins = []string{"http://localhost:3000"}
 	config.AllowCredentials = true
-	router.User(cores.New(config))
+	router.Use(cors.New(config))
 
 	//API Version
 	apiV0_0_2 := router.Group("/api/v0_0_2")//router.Group() make gin.RouterGroup
@@ -25,7 +28,7 @@ func SetupRouter(
 		apiV0_0_2.POST("/login", authHandler.Login)
 
 		secure := apiV0_0_2.Group("")
-		secure.Use(middlrware.AuthMiddleware())
+		secure.Use(authMiddleware.Auth())
 		{	// /create page
 			secure.GET("/create", occHandler.GetCreatePage)
 

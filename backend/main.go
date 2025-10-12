@@ -2,6 +2,10 @@ package main
 
 import (
 	"log"
+	"net/http"
+
+	"github.com/gin-gonic/gin"
+
 
 	"github.com/saku-730/web-specimen/backend/config"
 	"github.com/saku-730/web-specimen/backend/internal/handler"
@@ -49,9 +53,16 @@ func main() {
 	authHandler := handler.NewAuthHandler(authService)
 	occHandler := handler.NewOccurrenceHandler(occService)
 
+	// Middlreware
+	authMiddleware := middleware.NewAuthMiddleware(cfg.JWTSecret)
+
 	//setup router
 
-	appRouter := router.SetupRouter(occHandler)
+	appRouter := router.SetupRouter(
+		authHandler,
+		occHandler,
+		authMiddleware,
+	)
 
 	// start server
 	log.Printf("Start server port:%s", cfg.ServerPort)
