@@ -9,7 +9,19 @@ import (
 	"github.com/saku-730/web-specimen/backend/internal/repository"
 	"github.com/saku-730/web-specimen/backend/internal/service"
 	"github.com/saku-730/web-specimen/backend/internal/router"
+	"github.com/saku-730/web-specimen/backend/internal/middleware"
 )
+
+func ProfileHandler(c *gin.Context) {
+	// ミドルウェアで保存したユーザー情報を取得する
+	userID, _ := c.Get("userID")
+	userName, _ := c.Get("userName")
+
+	c.JSON(http.StatusOK, gin.H{
+		"message":   userName.(string),
+		"user_id":   userID,
+	})
+}
 
 func main() {
 	// load config
@@ -27,11 +39,14 @@ func main() {
 
 	// Repository層を初期化
 	occRepo := repository.NewOccurrenceRepository(db)
+	userRepo := repository.NewUserRepository(db)
 
 	// Service層を初期化
+	authService := service.NewAuthService(userRepo,cfg)
 	occService := service.NewOccurrenceService(occRepo)
 
 	// Handler層を初期化
+	authHandler := handler.NewAuthHandler(authService)
 	occHandler := handler.NewOccurrenceHandler(occService)
 
 	//setup router

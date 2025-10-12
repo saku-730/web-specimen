@@ -47,15 +47,14 @@ func (m *mockOccurrenceService) GetDefaultValue() (*model.DefaultValues, error) 
 	return r0, ret.Error(1)
 }
 
-func (m *mockOccurrenceService) CreateOccurrence(req *model.OccurrenceCreate) (*model.Occurrence, error) {
-	// 引数も記録するのだ
-	ret := m.Called(req)
-	var r0 *model.Occurrence
-	if ret.Get(0) != nil {
-		r0 = ret.Get(0).(*model.Occurrence)
-	}
-	return r0, ret.Error(1)
-}
+//func (m *mockOccurrenceService) CreateOccurrence(req *model.OccurrenceCreate) (*model.Occurrence, error) {
+//	ret := m.Called(req)
+//	var r0 *model.Occurrence
+//	if ret.Get(0) != nil {
+//		r0 = ret.Get(0).(*model.Occurrence)
+//	}
+//	return r0, ret.Error(1)
+//}
 
 // AttachFiles のモックも同様に作る（今回はテストしないので中身は省略）
 // func (m *mockOccurrenceService) UploadAttachments(...) ...
@@ -92,11 +91,12 @@ func TestGetCreatePage(t *testing.T) {
 		// ステータスコードが200 OKか？
 		assert.Equal(t, http.StatusOK, w.Code)
 		
-		// レスポンスボディは期待通りか？
-		var resBody gin.H
-		json.Unmarshal(w.Body.Bytes(), &resBody)
-		assert.Equal(t, expectedDropdowns, resBody["dropdown_list"])
-		assert.Equal(t, expectedDefaults, resBody["default_value"])
+		var pageData model.CreatePageData
+
+		json.Unmarshal(w.Body.Bytes(), &pageData)
+
+		assert.Equal(t, *expectedDropdowns,pageData.DropdownList) 
+		assert.Equal(t, *expectedDefaults, pageData.DefaultValue)
 
 		// モックがちゃんと設定通りに呼ばれたか検証
 		mockService.AssertExpectations(t)

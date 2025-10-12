@@ -4,6 +4,8 @@ package router
 import (
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
+	"github.com/saku-730/web-specimen/backend/internal/handler"
+	"github.com/saku-730/web-specimen/backend/internal/middleware"
 )
 
 func SetupRouter(
@@ -11,7 +13,7 @@ func SetupRouter(
 )*gin.Engine {
 	router := gin.Default()
 
-	//CORS midleware
+	//CORS middleware
 	config := cors.DefaultConfig()
 	config.AllowOrigins = []string{"http://localhost:3000"}
 	config.AllowCredentials = true
@@ -20,7 +22,15 @@ func SetupRouter(
 	//API Version
 	apiV0_0_2 := router.Group("/api/v0_0_2")//router.Group() make gin.RouterGroup
 	{
-		occHandler.RegisterOccurrenceRoutes(apiV0_0_2)
+		apiV0_0_2.POST("/login", authHandler.Login)
+
+		secure := apiV0_0_2.Group("")
+		secure.Use(middlrware.AuthMiddleware())
+		{	// /create page
+			secure.GET("/create", occHandler.GetCreatePage)
+
+
+		}
 
 	}
 

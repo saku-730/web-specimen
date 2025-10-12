@@ -2,10 +2,14 @@
 package model
 
 import (
-	"mime/multipart"
-	"time"
+//	"mime/multipart"
+//	"time"
 )
 
+type CreatePageData struct {
+    DropdownList Dropdowns `json:"dropdown_list"`
+    DefaultValue DefaultValues `json:"default_value"`
+}
 
 // --- Dropdowns for create paga ---
 type Dropdowns struct {
@@ -110,4 +114,7 @@ type Identification struct {
 	IdentifiedAt string `json:"identified_at"`
 	SourceInfo string `json:"source_info"`
 }
+
+// --- OccurrenceCreate ---
+//type OccurrnenceCreate struct{
 
