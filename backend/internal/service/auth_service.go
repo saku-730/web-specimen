@@ -6,7 +6,7 @@ import (
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
-	"github.com/saku-730/web-specimen/backend/internal/config"
+	"github.com/saku-730/web-specimen/backend/configs"
 	"github.com/saku-730/web-specimen/backend/internal/model"
 	"github.com/saku-730/web-specimen/backend/internal/repository"
 	"github.com/saku-730/web-specimen/backend/internal/util"
@@ -23,7 +23,7 @@ type authService struct {
 	jwtSecret []byte
 }
 
-func NewAuthService(userRepo repository.UserRepository, cfg *config.Config) AuthService {
+func NewAuthService(userRepo repository.UserRepository, cfg *configs.Config) AuthService {
 	return &authService{
 		userRepo:  userRepo,
 		jwtSecret: []byte(cfg.JWTSecret), // get secret key from cfg
