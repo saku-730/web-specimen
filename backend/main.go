@@ -44,6 +44,7 @@ func main() {
 	// Repository層を初期化
 	occRepo := repository.NewOccurrenceRepository(db)
 	userRepo := repository.NewUserRepository(db)
+	userDefaultsRepo := repository.NewUserDefaultsRepository(db)
 
 	// Service層を初期化
 	authService := service.NewAuthService(userRepo,cfg)

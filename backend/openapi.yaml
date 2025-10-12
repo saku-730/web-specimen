@@ -21,7 +21,7 @@ paths:
                   dropdown_list:
                     $ref: '#/components/schemas/Dropdown_list'
                   default_value:
-                    $ref: '#/components/schemas/Occurrence'
+                    $ref: '#/components/schemas/Default_value'
               
     post:
       tags:
@@ -1174,8 +1174,6 @@ components:
           type: string
           example: "sample identification sorce paper"
 
-
-
     Classification:
       type: object
       properties:
@@ -1336,16 +1334,22 @@ components:
           $ref: '#/components/schemas/Specimens'
         institutions:
           $ref: '#/components/schemas/Institutions'
-    
-    Search:
+
+    Default_value:
       type: object
       properties:
         user_id:
           type: integer
           example: 1
+        user_name:
+          type: string
+          example: "admin"
         project_id:
           type: integer
           example: 1
+        project_name:
+          type: string
+          example: "test project" 
         individual_id:
           type: integer
           example: 1
@@ -1355,25 +1359,12 @@ components:
         sex:
           type: string 
           example: "male"
-        body_lengh:
+        language_common:
           type: string
-          example: "10mm"
-        creawted_at:
-          type: string
-          format: date-time
-          example: "2024-01-01T00:00:00Z"
+          example: "English"
         language_id:
           type: integer
           example: 1
-# place 
-        latigude:
-          type: number
-          format: float
-          example: 35.6895
-        longitude:
-          type: number
-          format: float
-          example: 139.6917
 #place_name is json format
         place_name:
           type: string
@@ -1383,71 +1374,91 @@ components:
           type: string
           example: "sample note"
 
-# cllasification 
-        species:
-          type: string
-          example: "fetida"
-        genus:
-          type: string
-          example: "Eisenia"
-        family:
-          type: string
-          example: "Lumbricidae"
-        order:
-          type: string
-          example: "Haplotaxida"
-        class:
-          type: string
-          example: "Clitellata"
-        phylum:
-          type: string
-          example: "Annelida"
-        kingdom:
-          type: string
-          example: "Animalia"
-        others: # others contain verious sub-classificastion
-          type: string
-          example: "subspecies"
-        
+# cllasification
+        classification:
+          type: object
+          properties:
+            species:
+              type: string
+              example: "fetida"
+            genus:
+              type: string
+              example: "Eisenia"
+            family:
+              type: string
+              example: "Lumbricidae"
+            order:
+              type: string
+              example: "Haplotaxida"
+            class:
+              type: string
+              example: "Clitellata"
+            phylum:
+              type: string
+              example: "Annelida"
+            kingdom:
+              type: string
+              example: "Animalia"
+            others: # others contain verious sub-classificastion
+              type: string
+              example: "subspecies"
 # observation
-        observation_user_id:
-          type: integer
-          example: 1 
-        observation_method_id:
-          type: integer
-          example: 1 
-        behavior:
-          type: string
-          example: "sample behavior"
-        observed_at:
-          type: string
-          format: date-time
-          example: "2024-01-01T00:00:00Z"
+        observation:
+          type: object
+          properties:
+            observation_user_id:
+              type: integer
+              example: 1
+            observation_user:
+              type: string
+              example: "admin"
+            observation_method_id:
+              type: integer
+              example: 1
+            observation_method_name:
+              type: string
+              example: "Trap"
+            behavior:
+              type: string
+              example: "sample behavior"
+            observed_at:
+              type: string
+              format: date-time
+              example: "2024-01-01T00:00:00Z"
+
 # specimen
-        specimen_user_id:
-          type: integer
-          example: 1
-        specimen_methods_id:
-          type: integer
-          example: 1
-        specimen_created_at:
-          type: string
-          format: date-time
-          example: "2024-01-01T00:00:00Z"
-        institution_id:
-          type: integer
-          example: 1
-        collection_id:
-          type: string
-          example: "C-001"
+        specimen:
+          type: object
+          properties:
+            specimen_user_id:
+              type: integer
+              example: 1
+            specimen_user:
+              type: string
+              example: "admin"
+            specimen_methods_id:
+              type: integer
+              example: 1
+            specimen_methods_common:
+              type: string
+              example: "Dried"
+              
 # identification
-        identification_user_id:
-          type: integer
-          example: 1
-        identified_at:
-          type: string
-          format: date-time
-          example: "2024-01-01T00:00:00Z"
-        source_info:
-          type: string
-          example: "sample identification sorce paper"
+        identification:
+          type: object
+          properties:
+            identification_user_id:
+              type: integer
+              example: 1
+            identification_user:
+              type: string
+              example: "admin"
+            identified_at:
+              type: string
+              format: date-time
+              example: "2024-01-01T00:00:00Z"
+            source_info:
+              type: string
+              example: "sample identification sorce paper"
+
+

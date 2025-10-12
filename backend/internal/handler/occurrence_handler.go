@@ -32,7 +32,22 @@ func (h *occurrenceHandler) GetCreatePage(c *gin.Context) {
 		return
 	}
 
-	defaultValues, err := h.service.GetDefaultValue()
+	userIDInterface, exists := c.Get("userID")
+
+	if !exists {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Not fount userID context"})
+		return
+	}
+
+	// interface{} 型を、元の型 (ここではuintだと仮定するのだ) に変換する
+	userID, ok := userIDInterface.(uint)
+	if !ok {
+		// 型の変換に失敗した場合
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "invalid context userID type"})
+		return
+	}
+
+	defaultValues, err := h.service.GetDefaultValues(userID)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"get default value service error": err.Error()})
 		return
