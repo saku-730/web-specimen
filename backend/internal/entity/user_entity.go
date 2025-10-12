@@ -28,7 +28,7 @@ type User struct {
 	// 他のテーブルからuser_idで参照されている関係なのだ ⬅️
 	
 	// Userは一つのUserDefaultsを持つ (Has One)
-	UserDefaults UserDefaults `gorm:"foreignKey:UserID"`
+	UserDefault UserDefault `gorm:"foreignKey:UserID"`
 
 	// Userは多くのAttachmentを持つ (Has Many)
 	Attachments []Attachment `gorm:"foreignKey:UserID"`
