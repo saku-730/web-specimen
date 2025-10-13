@@ -7,6 +7,11 @@ import (
 	"fmt"
 	"encoding/json"
 	"time"
+	"os"
+	"mime/multipart"
+	"path/filepath"
+	"io"
+	"strings"
 
 	"github.com/saku-730/web-specimen/backend/internal/entity"
 	"github.com/saku-730/web-specimen/backend/internal/model"
@@ -17,7 +22,8 @@ import (
 type OccurrenceService interface {
 	PrepareCreatePage() (*model.Dropdowns, error)
 	GetDefaultValues(userID int) (*model.DefaultValues, error)
-	CreateOccurrence(req *model.OccurrenceCreate)(*model.OccurrenceCreate, error)
+	CreateOccurrence(req *model.OccurrenceCreate)(*entity.Occurrence, error)
+	AttachFiles (occurrenceID uint, userID uint, files []*multipart.FileHeader) ([]string, error)
 }
 
 // occurrenceService構造体。必要なリポジトリを全部持たせるのだ。
@@ -25,16 +31,27 @@ type occurrenceService struct {
 	db	     *gorm.DB
 	occRepo      repository.OccurrenceRepository
 	defaultsRepo repository.UserDefaultsRepository
+	attachmentRepo    repository.AttachmentRepository
+	attachmentGroupRepo repository.AttachmentGroupRepository
+	fileExtRepo	repository.FileExtensionRepository
 }
 
 // NewOccurrenceService は、必要なリポジトリを全部引数で受け取るのだ！
 func NewOccurrenceService(
+	db	*gorm.DB,
 	occRepo repository.OccurrenceRepository,
 	defaultsRepo repository.UserDefaultsRepository,
+	attRepo repository.AttachmentRepository, 
+	attGroupRepo repository.AttachmentGroupRepository,
+	fileExtRepo	repository.FileExtensionRepository
 ) OccurrenceService {
 	return &occurrenceService{
-		occRepo:     occRepo,
+		db:	      db,
+		occRepo:      occRepo,
 		defaultsRepo: defaultsRepo,
+		attachmentRepo: attRepo,
+		attachmentGroupRepo: attGroupRepo,
+		fileExtRepo: fileExtRepo,
 	}
 }
 
@@ -119,7 +136,7 @@ func formatTimezone(t *time.Time) *string {
 }
 
 
-func (s *occurrenceService) CreateOccurrence(req *model.OccurrenceCreate) (*model.OccurrenceCreate, error) {
+func (s *occurrenceService) CreateOccurrence(req *model.OccurrenceCreate) (*entity.Occurrence, error) {
 
 	classMap := map[string]interface{}{"species": req.Classification.Species, "genus": req.Classification.Genus, "family": req.Classification.Family, "order": req.Classification.Order, "class": req.Classification.Class, "phylum": req.Classification.Phylum, "kingdom": req.Classification.Kingdom, "others": req.Classification.Others}
 	classJSON, _ := json.Marshal(classMap)
@@ -171,14 +188,107 @@ func (s *occurrenceService) CreateOccurrence(req *model.OccurrenceCreate) (*mode
 		Timezone: formatTimezone(req.Identification.IdentifiedAt),
 	}
 
+	var createdOccurrence *entity.Occurrence
+
 	// --- 2. トランザクションを開始してRepositoryを呼び出す ---
 	err := s.db.Transaction(func(tx *gorm.DB) error {
-		return s.occRepo.CreateOccurrence(tx, occurrence, classification, place, placeName, observation, specimen, makeSpecimen, identification)
+		var err error
+		createdOccurrence, err = s.occRepo.CreateOccurrence(tx, occurrence, classification, place, placeName, observation, specimen, makeSpecimen, identification)
+		return err
 	})
 
 	if err != nil {
 		return nil, err
 	}
 
-	return req, nil
+	return createdOccurrence, nil
+}
+
+
+func (s *occurrenceService) AttachFiles(occurrenceID uint, userID uint, files []*multipart.FileHeader) ([]string, error) {
+	//prepare dir
+	uploadDir := os.Getenv("UPLOAD_DIR")
+	if err := os.MkdirAll(uploadDir, os.ModePerm); err != nil {
+		return nil, err
+	}
+
+	var savedFileNames []string
+
+	// --- save file and file info to database ---
+	err := s.db.Transaction(func(tx *gorm.DB) error {
+		for _, fileHeader := range files {
+			// --- ファイルをサーバーに保存 ---
+			// 衝突を避けるためにユニークなファイル名を生成
+			uniqueFileName := fmt.Sprintf("%d-%s", time.Now().UnixNano(), fileHeader.Filename)
+			destPath := filepath.Join(uploadDir, uniqueFileName)
+			
+			src, err := fileHeader.Open()
+			if err != nil { return err }
+			defer src.Close()
+
+			dst, err := os.Create(destPath)
+			if err != nil { return err }
+			defer dst.Close()
+
+			if _, err := io.Copy(dst, src); err != nil { return err }
+
+			ext := filepath.Ext(fileHeader.Filename)
+			// unified to lowercase
+			ext = strings.ToLower(ext)
+
+			var extensionID *int
+	
+			if ext != "" {
+				fileExtEntity, err := s.fileExtRepo.FindByText(tx, ext)
+				// gorm.ErrRecordNotFound の場合は、見つからなかっただけなので処理を続ける
+				// それ以外のDBエラーの場合は、トランザクションを失敗させる
+				if err != nil && err != gorm.ErrRecordNotFound {
+					return err
+				}
+				// もし見つかったら、IDをセットする
+				if fileExtEntity != nil {
+					extensionID = &fileExtEntity.ExtensionID
+				}
+			}
+			
+			// --- save to database ---
+			//attachment table
+			attachment := &entity.Attachment{
+				FilePath:         destPath,
+				OriginalFilename: &fileHeader.Filename,
+				ExtensionID:      extensionID, 
+				UserID:           &userID,
+				Uploaded:         time.Now(),
+			}
+			//Repository 
+			if err := s.attachmentRepo.Create(tx, attachment); err != nil {
+				return err
+			}
+
+			//attachment group table
+			group := &entity.AttachmentGroup{
+				OccurrenceID: occurrenceID,
+				AttachmentID: attachment.AttachmentID,
+			}
+			//Repository 
+			if err := s.attachmentGroupRepo.Create(tx, group); err != nil {
+				return err
+			}
+			
+			savedFileNames = append(savedFileNames, uniqueFileName)
+			}
+			if err := s.attachmentRepo.Create(tx, attachment); err != nil {
+				return err
+
+
+		}
+		return nil
+	})
+
+
+	if err != nil {
+		return nil, err
+	}
+
+	return savedFileNames, nil
 }

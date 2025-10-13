@@ -46,7 +46,6 @@ paths:
                   type: string
                   format: uri 
                   example: "/occurrence/1"
-            content:
               application/json:
                 schema:
                   $ref : '#/components/schemas/Occurrence'
@@ -75,7 +74,13 @@ paths:
         content:
           multipart/form-data:
             schema:
-              $ref: '#/components/schemas/Attachment_files'
+              properties:
+                upload_files:
+                  type: array
+                  example: ["sample wav file","sample jpg file"]
+                file_name:
+                  type: array
+                  example: ["sample1.wav","sample2.jpg"]
 
       responses:
         "200":
@@ -83,7 +88,13 @@ paths:
             content:
               application/json:
                 schema:
-                  $ref : '#/components/schemas/Attachment_files'
+                  type: array
+                  items:
+                    type: string
+                  example:
+                    - "sample1.jpg"
+                    - "sample2.wav"
+
         "400":
             description: "Bad Request"
 
@@ -1297,13 +1308,52 @@ components:
         
 # observation
         observation:
-          $ref: '#/components/schemas/Observation_info'
+          properties:
+            observation_method_id:
+              type: integer
+              example: 1
+            behavior:
+              type: string
+              example: "sample behavior"
+            observed_at:
+              type: string
+              format: date-time
+              example: "2024-01-01T00:00:00Z"
+            observation_user_id:
+              type: integer
+              example: 1
 # specimen
         specimen:
-          $ref: '#/components/schemas/Specimen_info'
+          properties:
+            specimen_user_id:
+              type: integer
+              example: 1
+            specimen_methods_id:
+              type: integer
+              example: 1
+            created_at:
+              type: string
+              format: date-time
+              example: "2024-01-01T00:00:00Z"
+            institution_id:
+              type: integer
+              example: 1
+            collection_id:
+              type: string
+              example: "C-001"
 # identification
         identification:
-          $ref: '#/components/schemas/Identification_info'
+          properties:
+            identification_user_id:
+              type: integer
+              example: 1
+            identified_at:
+              type: string
+              format: date-time
+              example: "2024-01-01T00:00:00Z"
+            source_info:
+              type: string
+              example: "sample identification sorce paper"
 
     Occurrences:
       type: array

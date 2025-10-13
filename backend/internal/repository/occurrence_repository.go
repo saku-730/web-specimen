@@ -10,7 +10,7 @@ import (
 // DropdownRepository はドロップダウンリストのデータ取得を定義するインターフェースなのだ
 type OccurrenceRepository interface {
 	GetDropdownLists() (*model.Dropdowns, error)
-	CreateOccurrence(tx *gorm.DB, occurrence *entity.Occurrence, classification *entity.ClassificationJSON, place *entity.Place, placeName *entity.PlaceNamesJSON, observation *entity.Observation, specimen *entity.Specimen, makeSpecimen *entity.MakeSpecimen, identification *entity.Identification) error
+	CreateOccurrence(tx *gorm.DB, occurrence *entity.Occurrence, classification *entity.ClassificationJSON, place *entity.Place, placeName *entity.PlaceNamesJSON, observation *entity.Observation, specimen *entity.Specimen, makeSpecimen *entity.MakeSpecimen, identification *entity.Identification) (*entity.Occurrence, error)
 }
 
 type occurrenceRepository struct {
@@ -74,32 +74,32 @@ func (r *occurrenceRepository) GetDropdownLists() (*model.Dropdowns, error) {
 	return response, nil
 }
 
-func (r *occurrenceRepository) CreateOccurrence(tx *gorm.DB, occurrence *entity.Occurrence, classification *entity.ClassificationJSON, place *entity.Place, placeName *entity.PlaceNamesJSON, observation *entity.Observation, specimen *entity.Specimen, makeSpecimen *entity.MakeSpecimen, identification *entity.Identification) error {
-	if err := tx.Create(classification).Error; err != nil { return err }
+func (r *occurrenceRepository) CreateOccurrence(tx *gorm.DB, occurrence *entity.Occurrence, classification *entity.ClassificationJSON, place *entity.Place, placeName *entity.PlaceNamesJSON, observation *entity.Observation, specimen *entity.Specimen, makeSpecimen *entity.MakeSpecimen, identification *entity.Identification) (*entity.Occurrence, error) {
+	if err := tx.Create(classification).Error; err != nil { return nil, err }
 
-	if err := tx.Create(placeName).Error; err != nil { return err }
+	if err := tx.Create(placeName).Error; err != nil { return nil, err }
 	place.PlaceNameID = &placeName.PlaceNameID
-	if err := tx.Create(place).Error; err != nil { return err }
+	if err := tx.Create(place).Error; err != nil { return nil, err }
 
 	occurrence.ClassificationID = &classification.ClassificationID
 	occurrence.PlaceID = &place.PlaceID
-	if err := tx.Create(occurrence).Error; err != nil { return err }
+	if err := tx.Create(occurrence).Error; err != nil { return nil, err }
 
 	observation.OccurrenceID = &occurrence.OccurrenceID
-	if err := tx.Create(observation).Error; err != nil { return err }
+	if err := tx.Create(observation).Error; err != nil { return nil, err }
 
 	if specimen != nil && makeSpecimen != nil {
 		specimen.OccurrenceID = &occurrence.OccurrenceID
-		if err := tx.Create(specimen).Error; err != nil { return err }
+		if err := tx.Create(specimen).Error; err != nil { return nil, err }
 		makeSpecimen.OccurrenceID = &occurrence.OccurrenceID
 		makeSpecimen.SpecimenID = &specimen.SpecimenID
-		if err := tx.Create(makeSpecimen).Error; err != nil { return err }
+		if err := tx.Create(makeSpecimen).Error; err != nil { return nil, err }
 	}
 
 	if identification != nil {
 		identification.OccurrenceID = &occurrence.OccurrenceID
-		if err := tx.Create(identification).Error; err != nil { return err }
+		if err := tx.Create(identification).Error; err != nil { return nil, err }
 	}
 
-	return nil
+	return occurrence, nil
 }

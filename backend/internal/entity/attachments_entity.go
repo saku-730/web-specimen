@@ -12,8 +12,9 @@ type Attachment struct {
 	// --- Table Columns ---
 	AttachmentID uint       `gorm:"primaryKey;column:attachment_id"`
 	FilePath     string     `gorm:"column:file_path;not null"`
-	ExtensionID  *int       `gorm:"column:extension_id"`
-	UserID       *int       `gorm:"column:user_id"`
+	OriginalFilename *string  `gorm:"column:original_filename"`
+	ExtensionID  *uint       `gorm:"column:extension_id"`
+	UserID       *uint       `gorm:"column:user_id"`
 	Uploaded     *time.Time `gorm:"column:uploaded"`
 	Note         *string    `gorm:"column:note"`
 

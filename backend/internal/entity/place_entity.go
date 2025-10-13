@@ -39,8 +39,11 @@ func (p Point) Value() (driver.Value, error) {
 	if p.Lat == nil && p.Lng == nil {
 		return nil, nil
 	}
-	return fmt.Sprintf("SRID=4326;POINT(%f %f)", p.Lng, p.Lat), nil
+	pointString :=  fmt.Sprintf("SRID=4326;POINT(%f %f)", *p.Lng, *p.Lat)
+	fmt.Printf("--- DEBUG: Sending to PostGIS ---> %s\n", pointString)
+	return pointString, nil
 }
+
 
 
 // Place は public.places テーブルのレコードをマッピングするための構造体なのだ

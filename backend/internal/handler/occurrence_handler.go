@@ -74,11 +74,38 @@ func(h * occurrenceHandler) CreateOccurrence(c *gin.Context) {
 		return
 	}
 	
-	c.Header("Location", "/occurrence/"+strconv.Itoa(created.OccurrenceID))
+	c.Header("Location", "/occurrence/"+strconv.Itoa(int(created.OccurrenceID)))
 	c.JSON(http.StatusCreated, created)
 }
 
 
+func (h *occurrenceHandler) AttachFiles(c *gin.Context) {
+	occurrenceIDStr := c.Param("occurrence_id")
+	occurrenceID, err := strconv.ParseUint(occurrenceIDStr, 10, 32)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid occurrence_id"})
+		return
+	}
+
+	form, err := c.MultipartForm()
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "failed analyze form data: " + err.Error()})
+		return
+	}
+	files := form.File["upload_files"]
+
+	userID := c.MustGet("userID").(int)
+	savedFileNames, err := h.service.AttachFiles(uint(occurrenceID), uint(userID), files)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed upload file: " + err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"message":   "success upload file",
+		"fileNames": savedFileNames,
+	})
+}
 //func (h *occurrenceHandler) AttachFiles(c *gin.Context) {
 //	idStr := c.Param("occurrence_id")
 //	occurrenceID, err := strconv.ParseUint(idStr, 10, 32)
