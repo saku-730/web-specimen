@@ -11,11 +11,11 @@ import (
 type Identification struct {
 	// --- Table Columns ---
 	IdentificationID uint      `gorm:"primaryKey;column:identification_id"`
-	UserID           *int      `gorm:"column:user_id"`
-	OccurrenceID     *int      `gorm:"column:occurrence_id"`
+	UserID           *uint      `gorm:"column:user_id"`
+	OccurrenceID     *uint      `gorm:"column:occurrence_id"`
 	SourceInfo       *string   `gorm:"column:source_info"`
-	IdentificatedAt  time.Time `gorm:"column:identificated_at;autoCreateTime"`
-	Timezone         int16     `gorm:"column:timezone;not null"`
+	IdentificatedAt  *time.Time `gorm:"column:identificated_at;autoCreateTime"`
+	Timezone         *string     `gorm:"column:timezone;not null"`
 
 	// --- Relationships ---
 

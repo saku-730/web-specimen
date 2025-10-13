@@ -1,3 +1,4 @@
+// internal/entity/change_log_entity.go
 package entity
 
 import (

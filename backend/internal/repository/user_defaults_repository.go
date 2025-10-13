@@ -3,7 +3,7 @@ package repository
 
 import (
 	"github.com/saku-730/web-specimen/backend/internal/entity"
-	"github.com/saku-730/web-specimen/backend/internal/model"
+//	"github.com/saku-730/web-specimen/backend/internal/model"
 	"gorm.io/gorm"
 )
 

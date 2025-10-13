@@ -18,7 +18,7 @@ type PlaceNamesJSON struct {
 	// ◆ Has One (所有)の関係 ◆
 	// 'places'テーブルからplace_name_idで参照されている関係なのだ ⬅️
 	// 通常、1つの地名情報JSONは1つの場所に紐づくのでHas Oneの関係になるのだ
-	Place Place `gorm:"foreignKey:PlaceNameID"`
+	Place []Place `gorm:"foreignKey:PlaceNameID"`
 }
 
 // TableName メソッドで、GORMにこの構造体がどのテーブルに対応するかを教えるのだ

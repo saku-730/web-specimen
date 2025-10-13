@@ -8,21 +8,22 @@ import (
 )
 
 // DropdownRepository はドロップダウンリストのデータ取得を定義するインターフェースなのだ
-type DropdownRepository interface {
-	GetDropdownLists() (*model.DropdownListResponse, error)
+type OccurrenceRepository interface {
+	GetDropdownLists() (*model.Dropdowns, error)
+	CreateOccurrence(tx *gorm.DB, occurrence *entity.Occurrence, classification *entity.ClassificationJSON, place *entity.Place, placeName *entity.PlaceNamesJSON, observation *entity.Observation, specimen *entity.Specimen, makeSpecimen *entity.MakeSpecimen, identification *entity.Identification) error
 }
 
-type dropdownRepository struct {
+type occurrenceRepository struct {
 	db *gorm.DB
 }
 
-// NewDropdownRepository は新しいリポジトリのインスタンスを作成するのだ
-func NewDropdownRepository(db *gorm.DB) DropdownRepository {
-	return &dropdownRepository{db: db}
+// NewOccurrenceRepository は新しいリポジトリのインスタンスを作成するのだ
+func NewOccurrenceRepository(db *gorm.DB) OccurrenceRepository {
+	return &occurrenceRepository{db: db}
 }
 
 // GetDropdownLists は各テーブルからリスト作成に必要な情報を取得してくるのだ
-func (r *dropdownRepository) GetDropdownLists() (*model.Dropdowns, error) {
+func (r *occurrenceRepository) GetDropdownLists() (*model.Dropdowns, error) {
 	var users []model.DropdownUser
 	var projects []model.DropdownProject
 	var languages []model.DropdownLanguage
@@ -61,7 +62,7 @@ func (r *dropdownRepository) GetDropdownLists() (*model.Dropdowns, error) {
 	}
 
 	// 取得した各リストを一つのレスポンス構造体にまとめるのだ
-	response := &model.DropdownListResponse{
+	response := &model.Dropdowns{
 		Users:              users,
 		Projects:           projects,
 		Languages:          languages,
@@ -71,4 +72,34 @@ func (r *dropdownRepository) GetDropdownLists() (*model.Dropdowns, error) {
 	}
 
 	return response, nil
+}
+
+func (r *occurrenceRepository) CreateOccurrence(tx *gorm.DB, occurrence *entity.Occurrence, classification *entity.ClassificationJSON, place *entity.Place, placeName *entity.PlaceNamesJSON, observation *entity.Observation, specimen *entity.Specimen, makeSpecimen *entity.MakeSpecimen, identification *entity.Identification) error {
+	if err := tx.Create(classification).Error; err != nil { return err }
+
+	if err := tx.Create(placeName).Error; err != nil { return err }
+	place.PlaceNameID = &placeName.PlaceNameID
+	if err := tx.Create(place).Error; err != nil { return err }
+
+	occurrence.ClassificationID = &classification.ClassificationID
+	occurrence.PlaceID = &place.PlaceID
+	if err := tx.Create(occurrence).Error; err != nil { return err }
+
+	observation.OccurrenceID = &occurrence.OccurrenceID
+	if err := tx.Create(observation).Error; err != nil { return err }
+
+	if specimen != nil && makeSpecimen != nil {
+		specimen.OccurrenceID = &occurrence.OccurrenceID
+		if err := tx.Create(specimen).Error; err != nil { return err }
+		makeSpecimen.OccurrenceID = &occurrence.OccurrenceID
+		makeSpecimen.SpecimenID = &specimen.SpecimenID
+		if err := tx.Create(makeSpecimen).Error; err != nil { return err }
+	}
+
+	if identification != nil {
+		identification.OccurrenceID = &occurrence.OccurrenceID
+		if err := tx.Create(identification).Error; err != nil { return err }
+	}
+
+	return nil
 }

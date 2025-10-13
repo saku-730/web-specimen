@@ -12,11 +12,11 @@ type Observation struct {
 	// --- Table Columns ---
 	ObservationsID      uint      `gorm:"primaryKey;column:observations_id"`
 	UserID              *int      `gorm:"column:user_id"`
-	OccurrenceID        *int      `gorm:"column:occurrence_id"`
-	ObservationMethodID *int      `gorm:"column:observation_method_id"`
+	OccurrenceID        *uint      `gorm:"column:occurrence_id"`
+	ObservationMethodID *uint      `gorm:"column:observation_method_id"`
 	Behavior            *string   `gorm:"column:behavior"`
-	ObservedAt          time.Time `gorm:"column:observed_at;autoCreateTime"`
-	Timezone            int16     `gorm:"column:timezone;not null"`
+	ObservedAt          *time.Time `gorm:"column:observed_at;autoCreateTime"`
+	Timezone            *string     `gorm:"column:timezone;not null"`
 
 	// --- Relationships ---
 

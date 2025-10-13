@@ -9,7 +9,7 @@ import (
 // データベースの定義に沿って、すべてのカラムと関係性を定義しているのだ
 type User struct {
 	// --- Table Columns ---
-	UserID      uint      `gorm:"primaryKey;column:user_id"`
+	UserID      int      `gorm:"primaryKey;column:user_id"`
 	UserName    string    `gorm:"column:user_name;not null"`
 	DisplayName string    `gorm:"column:display_name;not null"`
 	MailAddress *string   `gorm:"column:mail_address;unique"`

@@ -14,14 +14,14 @@ type Occurrence struct {
 	IndividualID      *int       `gorm:"column:individual_id"`
 	Lifestage         *string    `gorm:"column:lifestage"`
 	Sex               *string    `gorm:"column:sex"`
-	ClassificationID  *int       `gorm:"column:classification_id"`
-	PlaceID           *int       `gorm:"column:place_id"`
-	AttachmentGroupID *int       `gorm:"column:attachment_group_id"` // Note: This is just a column. The actual M2M relationship is handled below.
-	BodyLength        *float64   `gorm:"column:body_length"`
-	LanguageID        *int       `gorm:"column:language_id"`
+	ClassificationID  *uint       `gorm:"column:classification_id"`
+	PlaceID           *uint       `gorm:"column:place_id"`
+	AttachmentGroupID *uint       `gorm:"column:attachment_group_id"`
+	BodyLength        *string    `gorm:"column:body_length"`
+	LanguageID        *uint       `gorm:"column:language_id"`
 	Note              *string    `gorm:"column:note"`
-	CreatedAt         time.Time  `gorm:"column:created_at;autoCreateTime"`
-	Timezone          int16      `gorm:"column:timezone;not null"`
+	CreatedAt         *time.Time  `gorm:"column:created_at;autoCreateTime"`
+	Timezone          *string      `gorm:"column:timezone;not null"`
 
 	// --- Relationships ---
 

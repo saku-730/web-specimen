@@ -31,6 +31,7 @@ func SetupRouter(
 		secure.Use(authMiddleware.Auth())
 		{	// /create page
 			secure.GET("/create", occHandler.GetCreatePage)
+			secure.POST("/create", occHandler.CreateOccurrence)
 
 
 		}

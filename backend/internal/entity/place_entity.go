@@ -7,10 +7,10 @@ import (
 	"fmt"
 )
 
-// Point は PostGISの geography(Point,4326) 型をGORMで扱うためのカスタム型なのだ
+// Point は PostGISの geography(Point,4326) 型をGORMで扱うためのカスタム型
 type Point struct {
-	Lat float64
-	Lng float64
+	Lat *float64
+	Lng *float64
 }
 
 // Scan メソッドはデータベースから値（例: "SRID=4326;POINT(139.7 35.6)")を読み込む時に呼ばれるのだ
@@ -29,14 +29,14 @@ func (p *Point) Scan(value interface{}) error {
 	if err != nil {
 		return fmt.Errorf("failed to scan point: %w", err)
 	}
-	p.Lat = lat
-	p.Lng = lng
+	p.Lat = &lat
+	p.Lng = &lng
 	return nil
 }
 
 // Value メソッドはデータベースに値を書き込む時に呼ばれるのだ
 func (p Point) Value() (driver.Value, error) {
-	if p.Lat == 0 && p.Lng == 0 {
+	if p.Lat == nil && p.Lng == nil {
 		return nil, nil
 	}
 	return fmt.Sprintf("SRID=4326;POINT(%f %f)", p.Lng, p.Lat), nil
@@ -49,7 +49,7 @@ type Place struct {
 	// --- Table Columns ---
 	PlaceID      uint     `gorm:"primaryKey;column:place_id"`
 	Coordinates  *Point   `gorm:"type:geography(Point,4326);column:coordinates"`
-	PlaceNameID  *int     `gorm:"column:place_name_id"`
+	PlaceNameID  *uint     `gorm:"column:place_name_id"`
 	Accuracy     *float64 `gorm:"column:accuracy"`
 
 	// --- Relationships ---

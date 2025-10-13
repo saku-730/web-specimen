@@ -3,7 +3,7 @@ package model
 
 import (
 //	"mime/multipart"
-//	"time"
+	"time"
 )
 
 type CreatePageData struct {
@@ -107,5 +107,57 @@ type Identification struct {
 
 
 // --- OccurrenceCreate ---
-//type OccurrnenceCreate struct{
+type OccurrenceCreate struct {
+	UserID         int                  `json:"user_id"`
+	ProjectID      *int                  `json:"project_id"`
+	IndividualID   *int                 `json:"individual_id"`
+	Lifestage      *string               `json:"lifestage"`
+	Sex            *string               `json:"sex"`
+	BodyLength     *string               `json:"body_length"`
+	CreatedAt      *time.Time            `json:"created_at"` 
+	LanguageID     *uint                  `json:"language_id"`
+	Latitude       *float64              `json:"latitude"`
+	Longitude      *float64              `json:"longitude"`
+	PlaceName      *string               `json:"place_name"`
+	Note           *string               `json:"note"`
+	Classification *ClassificationCreate `json:"classification"`
+	Observation    *ObservationCreate    `json:"observation"`
+	Specimen       *SpecimenCreate      `json:"specimen"`      
+	Identification *IdentificationCreate `json:"identification"`
+}
 
+// ClassificationCreate は分類情報の部分構造なのだ
+type ClassificationCreate struct {
+	Species *string `json:"species"`
+	Genus   *string `json:"genus"`
+	Family  *string `json:"family"`
+	Order   *string `json:"order"`
+	Class   *string `json:"class"`
+	Phylum  *string `json:"phylum"`
+	Kingdom *string `json:"kingdom"`
+	Others  *string `json:"others"`
+}
+
+// ObservationCreate は観察情報の部分構造なのだ
+type ObservationCreate struct {
+	ObservationUserID   *int       `json:"observation_user_id"`
+	ObservationMethodID *uint       `json:"observation_method_id"`
+	Behavior            *string    `json:"behavior"`
+	ObservedAt          *time.Time `json:"observed_at"`
+}
+
+// SpecimenCreate は標本情報の部分構造なのだ
+type SpecimenCreate struct {
+	SpecimenUserID    *uint       `json:"specimen_user_id"`
+	SpecimenMethodsID *uint       `json:"specimen_methods_id"`
+	CreatedAt         *time.Time `json:"created_at"`
+	InstitutionID     *uint       `json:"institution_id"`
+	CollectionID      *string    `json:"collection_id"`
+}
+
+// IdentificationCreate は同定情報の部分構造なのだ
+type IdentificationCreate struct {
+	IdentificationUserID *uint       `json:"identification_user_id"`
+	IdentifiedAt         *time.Time `json:"identified_at"`
+	SourceInfo           *string    `json:"source_info"`
+}

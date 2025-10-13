@@ -11,13 +11,13 @@ import (
 type MakeSpecimen struct {
 	// --- Table Columns ---
 	MakeSpecimenID   uint       `gorm:"primaryKey;column:make_specimen_id"`
-	OccurrenceID     *int       `gorm:"column:occurrence_id"`
-	UserID           *int       `gorm:"column:user_id"`
-	SpecimenID       *int       `gorm:"column:specimen_id"`
+	OccurrenceID     *uint       `gorm:"column:occurrence_id"`
+	UserID           *uint       `gorm:"column:user_id"`
+	SpecimenID       *uint       `gorm:"column:specimen_id"`
 	Date             *time.Time `gorm:"column:date"`
-	SpecimenMethodID *int       `gorm:"column:specimen_method_id"`
-	CreatedAt        time.Time  `gorm:"column:created_at;autoCreateTime"`
-	Timezone         int16      `gorm:"column:timezone;not null"`
+	SpecimenMethodID *uint       `gorm:"column:specimen_method_id"`
+	CreatedAt        *time.Time  `gorm:"column:created_at;autoCreateTime"`
+	Timezone         *string      `gorm:"column:timezone;not null"`
 
 	// --- Relationships ---
 

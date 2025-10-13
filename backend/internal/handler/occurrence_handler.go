@@ -3,7 +3,7 @@ package handler
 
 import (
 	"net/http"
-//	"strconv"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 	"github.com/saku-730/web-specimen/backend/internal/model"
@@ -12,7 +12,7 @@ import (
 
 type OccurrenceHandler interface {
 	GetCreatePage(c *gin.Context)
-//	CreateOccurrence(c *gin.Context)
+	CreateOccurrence(c *gin.Context)
 //	AttachFiles(c *gin.Context)
 }
 
@@ -40,7 +40,7 @@ func (h *occurrenceHandler) GetCreatePage(c *gin.Context) {
 	}
 
 	// interface{} 型を、元の型 (ここではuintだと仮定するのだ) に変換する
-	userID, ok := userIDInterface.(uint)
+	userID, ok := userIDInterface.(int)
 	if !ok {
 		// 型の変換に失敗した場合
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "invalid context userID type"})
@@ -61,23 +61,22 @@ func (h *occurrenceHandler) GetCreatePage(c *gin.Context) {
 	c.JSON(http.StatusOK, pageData)
 }
 
+func(h * occurrenceHandler) CreateOccurrence(c *gin.Context) {
+	var req model.OccurrenceCreate
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"invalid request body": err.Error()})
+		return
+	}
 
-//func (h *occurrenceHandler) CreateOccurrence(c *gin.Context) {
-//	var req model.OccurrenceCreate
-//	if err := c.ShouldBindJSON(&req); err != nil {
-//		c.JSON(http.StatusBadRequest, gin.H{"JSON bind error": err.Error()})
-//		return
-//	}
-//
-//	created, err := h.service.CreateOccurrence(&req)
-//	if err != nil {
-//		c.JSON(http.StatusInternalServerError, gin.H{"create occurrence service error": err.Error()})
-//		return
-//	}
-//	
-//	c.Header("Location", "/occurrence/"+strconv.Itoa(created.OccurrenceID))
-//	c.JSON(http.StatusCreated, created)
-//}
+	created, err := h.service.CreateOccurrence(&req)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"create occurrence service error": err.Error()})
+		return
+	}
+	
+	c.Header("Location", "/occurrence/"+strconv.Itoa(created.OccurrenceID))
+	c.JSON(http.StatusCreated, created)
+}
 
 
 //func (h *occurrenceHandler) AttachFiles(c *gin.Context) {

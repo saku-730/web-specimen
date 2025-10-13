@@ -48,7 +48,7 @@ func main() {
 
 	// Service層を初期化
 	authService := service.NewAuthService(userRepo,cfg)
-	occService := service.NewOccurrenceService(occRepo)
+	occService := service.NewOccurrenceService(occRepo,userDefaultsRepo)
 
 	// Handler層を初期化
 	authHandler := handler.NewAuthHandler(authService)
