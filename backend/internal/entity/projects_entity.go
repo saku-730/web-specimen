@@ -10,7 +10,7 @@ import (
 type Project struct {
 	// --- Table Columns ---
 	ProjectID    uint       `gorm:"primaryKey;column:project_id"`
-	ProjectName  string     `gorm:"column:project_name;not null"`
+	ProjectName  *string     `gorm:"column:project_name;not null"`
 	Disscription *string    `gorm:"column:disscription"`
 	StartDay     *time.Time `gorm:"column:start_day"`
 	FinishedDay  *time.Time `gorm:"column:finished_day"`

@@ -9,8 +9,8 @@ import (
 type Occurrence struct {
 	// --- Table Columns ---
 	OccurrenceID      uint       `gorm:"primaryKey;column:occurrence_id"`
-	ProjectID         *int       `gorm:"column:project_id"`
-	UserID            *int       `gorm:"column:user_id"`
+	ProjectID         *uint       `gorm:"column:project_id"`
+	UserID            *uint       `gorm:"column:user_id"`
 	IndividualID      *int       `gorm:"column:individual_id"`
 	Lifestage         *string    `gorm:"column:lifestage"`
 	Sex               *string    `gorm:"column:sex"`

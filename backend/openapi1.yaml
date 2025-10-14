@@ -103,6 +103,18 @@ paths:
         - "Occurrence"
       summary: "search occurrence data by various conditions"
       parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            example: 1
+          description: "page number for pagination"
+        - name: per_page
+          in: query
+          schema:
+            type: integer
+            example: 10
+          description: "number of items per page for pagination"
         - name: user_id
           in: query
           schema:
@@ -277,6 +289,12 @@ paths:
             type: string
             example: "C-001"
           description: "collection id of occurrence data"
+        - name: identification_user_id
+          in: query
+          schema:
+            type: integer
+            example: 1
+          description: "identification_user_id of occurrence data"
         - name: identified_start
           in: query
           schema:
@@ -311,7 +329,7 @@ paths:
               schema:
                 properties:
                   occurrence_results:
-                    $ref: '#/components/schemas/FullOccurrence'
+                    $ref: '#/components/schemas/FullOccurrences'
                   metadata:
                     type: object
                     properties:
@@ -1276,6 +1294,11 @@ components:
             source_info:
               type: string
               example: "sample identification sorce paper"
+    FullOccurrences:
+      type: array
+      description: "list of full occurrences"
+      items:
+        $ref: '#/components/schemas/FullOccurrence'
 
     OccurrenceObservation:
       type: object

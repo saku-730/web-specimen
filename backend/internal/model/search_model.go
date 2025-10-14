@@ -70,19 +70,19 @@ type Metadata struct {
 
 // OccurrenceResult は検索結果の各項目の詳細な構造なのだ
 type OccurrenceResult struct {
-	UserID         int                   `json:"user_id"`
+	UserID         uint                   `json:"user_id"`
 	UserName       string                `json:"user_name"`
-	ProjectID      int                   `json:"project_id"`
-	ProjectName    string                `json:"project_name"`
+	ProjectID      *uint                   `json:"project_id"`
+	ProjectName    *string                `json:"project_name"`
 	IndividualID   *int                  `json:"individual_id,omitempty"`
 	Lifestage      *string               `json:"lifestage,omitempty"`
 	Sex            *string               `json:"sex,omitempty"`
 	BodyLength     *string               `json:"body_length,omitempty"`
 	CreatedAt      time.Time             `json:"created_at"`
-	LanguageID     *int                  `json:"language_id,omitempty"`
+	LanguageID     *uint                  `json:"language_id,omitempty"`
 	Latitude       *float64              `json:"latitude,omitempty"`
 	Longitude      *float64              `json:"longitude,omitempty"`
-	PlaceName      string                `json:"place_name,omitempty"`
+	PlaceName      *string                `json:"place_name,omitempty"`
 	Note           *string               `json:"note,omitempty"`
 	Classification *ClassificationResult `json:"classification,omitempty"`
 	Observation    *ObservationResult    `json:"observation,omitempty"`
@@ -92,47 +92,47 @@ type OccurrenceResult struct {
 
 // ClassificationResult は分類情報のレスポンス構造なのだ
 type ClassificationResult struct {
-	ClassificationID uint   `json:"classification_id"`
-	Species          string `json:"species,omitempty"`
-	Genus            string `json:"genus,omitempty"`
-	Family           string `json:"family,omitempty"`
-	Order            string `json:"order,omitempty"`
-	Class            string `json:"class,omitempty"`
-	Phylum           string `json:"phylum,omitempty"`
-	Kingdom          string `json:"kingdom,omitempty"`
-	Others           string `json:"others,omitempty"`
+	ClassificationID *uint   `json:"classification_id"`
+	Species          *string `json:"species,omitempty"`
+	Genus            *string `json:"genus,omitempty"`
+	Family           *string `json:"family,omitempty"`
+	Order            *string `json:"order,omitempty"`
+	Class            *string `json:"class,omitempty"`
+	Phylum           *string `json:"phylum,omitempty"`
+	Kingdom          *string `json:"kingdom,omitempty"`
+	Others           *string `json:"others,omitempty"`
 }
 
 // ObservationResult は観察情報のレスポンス構造なのだ
 type ObservationResult struct {
-	ObservationID         uint      `json:"observation_id"`
-	ObservationUserID     uint       `json:"observation_user_id"`
-	ObservationUser       string    `json:"observation_user"`
-	ObservationMethodID   uint       `json:"observation_method_id"`
-	ObservationMethodName string    `json:"observation_method_name"`
+	ObservationID         *uint      `json:"observation_id"`
+	ObservationUserID     *uint       `json:"observation_user_id"`
+	ObservationUser       *string    `json:"observation_user"`
+	ObservationMethodID   *uint       `json:"observation_method_id"`
+	ObservationMethodName *string    `json:"observation_method_name"`
 	PageID                *int      `json:"page_id,omitempty"`
 	Behavior              *string   `json:"behavior,omitempty"`
-	ObservedAt            time.Time `json:"observed_at"`
+	ObservedAt            *time.Time `json:"observed_at"`
 }
 
 // SpecimenResult は標本情報のレスポンス構造なのだ
 type SpecimenResult struct {
-	SpecimenID            uint    `json:"specimen_id"`
-	SpecimenUserID        uint     `json:"specimen_user_id"`
-	SpecimenUser          string  `json:"specimen_user"`
-	SpecimenMethodsID     uint     `json:"specimen_methods_id"`
-	SpecimenMethodsCommon string  `json:"specimen_methods_common"`
+	SpecimenID            *uint    `json:"specimen_id"`
+	SpecimenUserID        *uint     `json:"specimen_user_id"`
+	SpecimenUser          *string  `json:"specimen_user"`
+	SpecimenMethodsID     *uint     `json:"specimen_methods_id"`
+	SpecimenMethodsCommon *string  `json:"specimen_methods_common"`
 	PageID                *uint    `json:"page_id,omitempty"`
-	InstitutionID         uint     `json:"institution_id"`
-	InstitutionCode       string  `json:"institution_code"`
+	InstitutionID         *uint     `json:"institution_id"`
+	InstitutionCode       *string  `json:"institution_code"`
 	CollectionID          *string `json:"collection_id,omitempty"`
 }
 
 // IdentificationResult は同定情報のレスポンス構造なのだ
 type IdentificationResult struct {
-	IdentificationID     uint      `json:"identification_id"`
-	IdentificationUserID int       `json:"identification_user_id"`
-	IdentificationUser   string    `json:"identification_user"`
-	IdentifiedAt         time.Time `json:"identified_at"`
+	IdentificationID     *uint      `json:"identification_id"`
+	IdentificationUserID *int       `json:"identification_user_id"`
+	IdentificationUser   *string    `json:"identification_user"`
+	IdentifiedAt         *time.Time `json:"identified_at"`
 	SourceInfo           *string   `json:"source_info,omitempty"`
 }

@@ -296,7 +296,7 @@ func (s *occurrenceService) AttachFiles(occurrenceID uint, userID uint, files []
 func (s *occurrenceService) Search(query *model.SearchQuery) (*model.SearchResponse, error) {
 	// ページネーションのデフォルト値を設定
 	if query.Page <= 0 { query.Page = 1 }
-	if query.PerPage <= 0 { query.PerPage = 10 }
+	if query.PerPage <= 0 { query.PerPage = 30 }
 
 	occurrences, total, err := s.occRepo.Search(query)
 	if err != nil {
@@ -309,7 +309,7 @@ func (s *occurrenceService) Search(query *model.SearchQuery) (*model.SearchRespo
 		result := model.OccurrenceResult{
 			UserID:       *occ.UserID,
 			UserName:     occ.User.UserName,
-			ProjectID:    *occ.ProjectID,
+			ProjectID:    occ.ProjectID,
 			ProjectName:  occ.Project.ProjectName,
 			IndividualID: occ.IndividualID,
 			Lifestage:    occ.Lifestage,

@@ -11,7 +11,7 @@ import (
 type Observation struct {
 	// --- Table Columns ---
 	ObservationsID      uint      `gorm:"primaryKey;column:observations_id"`
-	UserID              *int      `gorm:"column:user_id"`
+	UserID              *uint      `gorm:"column:user_id"`
 	OccurrenceID        *uint      `gorm:"column:occurrence_id"`
 	ObservationMethodID *uint      `gorm:"column:observation_method_id"`
 	Behavior            *string   `gorm:"column:behavior"`

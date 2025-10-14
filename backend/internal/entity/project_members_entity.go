@@ -11,7 +11,7 @@ import (
 type ProjectMember struct {
 	// --- Table Columns ---
 	ProjectMemberID uint       `gorm:"primaryKey;column:project_member_id"`
-	ProjectID       *int       `gorm:"column:project_id"`
+	ProjectID       *uint       `gorm:"column:project_id"`
 	UserID          *int       `gorm:"column:user_id"`
 	JoinDay         *time.Time `gorm:"column:join_day"`
 	FinishDay       *time.Time `gorm:"column:finish_day"`

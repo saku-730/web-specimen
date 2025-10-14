@@ -108,8 +108,8 @@ type Identification struct {
 
 // --- OccurrenceCreate ---
 type OccurrenceCreate struct {
-	UserID         int                  `json:"user_id"`
-	ProjectID      *int                  `json:"project_id"`
+	UserID         uint                  `json:"user_id"`
+	ProjectID      *uint                  `json:"project_id"`
 	IndividualID   *int                 `json:"individual_id"`
 	Lifestage      *string               `json:"lifestage"`
 	Sex            *string               `json:"sex"`
@@ -140,7 +140,7 @@ type ClassificationCreate struct {
 
 // ObservationCreate は観察情報の部分構造なのだ
 type ObservationCreate struct {
-	ObservationUserID   *int       `json:"observation_user_id"`
+	ObservationUserID   *uint       `json:"observation_user_id"`
 	ObservationMethodID *uint       `json:"observation_method_id"`
 	Behavior            *string    `json:"behavior"`
 	ObservedAt          *time.Time `json:"observed_at"`
