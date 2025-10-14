@@ -78,7 +78,7 @@ type OccurrenceResult struct {
 	Lifestage      *string               `json:"lifestage,omitempty"`
 	Sex            *string               `json:"sex,omitempty"`
 	BodyLength     *string               `json:"body_length,omitempty"`
-	CreatedAt      time.Time             `json:"created_at"`
+	CreatedAt      *time.Time             `json:"created_at"`
 	LanguageID     *uint                  `json:"language_id,omitempty"`
 	Latitude       *float64              `json:"latitude,omitempty"`
 	Longitude      *float64              `json:"longitude,omitempty"`

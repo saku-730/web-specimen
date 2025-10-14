@@ -1,0 +1,16 @@
+ALTER TABLE users_defaults 
+	DROP COLUMN latitude,
+	DROP COLUMN longitude,
+	DROP COLUMN classification_id,
+	DROP COLUMN observation_id,
+	DROP COLUMN identification_id,
+	DROP COLUMN body_length,
+	DROP COLUMN created_at,
+	DROP COLUMN observation_page_id,
+	DROP COLUMN specimen_page_id,
+	ADD COLUMN project_name text,
+	ADD COLUMN user_name text,
+	ADD COLUMN observation_user_name text,
+	ADD COLUMN specimen_user_name text,
+	ADD COLUMN identification_user_name text,
+	ADD COLUMN language_common text;
