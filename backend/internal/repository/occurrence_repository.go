@@ -12,6 +12,8 @@ type OccurrenceRepository interface {
 	GetDropdownLists() (*model.Dropdowns, error)
 	CreateOccurrence(tx *gorm.DB, occurrence *entity.Occurrence, classification *entity.ClassificationJSON, place *entity.Place, placeName *entity.PlaceNamesJSON, observation *entity.Observation, specimen *entity.Specimen, makeSpecimen *entity.MakeSpecimen, identification *entity.Identification) (*entity.Occurrence, error)
 	Search(query *model.SearchQuery) ([]entity.Occurrence, int64, error)
+	GetOccurrenceDetail(id uint) (*model.OccurrenceDetailResponse, error)
+	FindByID(id uint) (*entity.Occurrence, error)
 }
 
 type occurrenceRepository struct {
@@ -185,3 +187,22 @@ func (r *occurrenceRepository) Search(query *model.SearchQuery) ([]entity.Occurr
 }
 
 
+func (r *occurrenceRepository) FindByID(id uint) (*entity.Occurrence, error) {
+	var occurrence entity.Occurrence
+
+	err := r.db.
+		Preload("User").
+		Preload("Project").
+		Preload("Place.PlaceNamesJSON").
+		Preload("ClassificationJSON").
+		Preload("Observations.User").
+		Preload("Observations.ObservationMethod").
+		Preload("Specimens.SpecimenMethod").
+		Preload("Specimens.InstitutionIDCode").
+		Preload("MakeSpecimens.User").
+		Preload("Identifications.User").
+		Preload("AttachmentGroups.Attachment"). // 中間テーブル経由でAttachmentを取得
+		First(&occurrence, id).Error
+
+	return &occurrence, err
+}

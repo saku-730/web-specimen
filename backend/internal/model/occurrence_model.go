@@ -161,3 +161,78 @@ type IdentificationCreate struct {
 	IdentifiedAt         *time.Time `json:"identified_at"`
 	SourceInfo           *string    `json:"source_info"`
 }
+
+
+
+type OccurrenceDetailResponse struct {
+	UserID         int                    `json:"user_id"`
+	UserName       string                 `json:"user_name"`
+	ProjectID      *int                    `json:"project_id"`
+	ProjectName    *string                 `json:"project_name"`
+	IndividualID   *int                   `json:"individual_id,omitempty"`
+	Lifestage      *string                `json:"lifestage,omitempty"`
+	Sex            *string                `json:"sex,omitempty"`
+	BodyLength     *string                `json:"body_length,omitempty"`
+	CreatedAt      time.Time              `json:"created_at"`
+	LanguageID     *int                   `json:"language_id,omitempty"`
+	Latitude       *float64               `json:"latitude,omitempty"`
+	Longitude      *float64               `json:"longitude,omitempty"`
+	PlaceName      *string                 `json:"place_name,omitempty"`
+	Note           *string                `json:"note,omitempty"`
+	Classification *ClassificationDetail  `json:"classification,omitempty"`
+	Observations   []ObservationDetail    `json:"observation"`   // ⬅️ リスト形式
+	Specimens      []SpecimenDetail       `json:"specimen"`      // ⬅️ リスト形式
+	Identifications []IdentificationDetail `json:"identification"` // ⬅️ リスト形式
+	Attachments    []AttachmentDetail     `json:"attachments"`   // ⬅️ リスト形式
+}
+
+type ClassificationDetail struct {
+	ClassificationID *uint   `json:"classification_id"`
+	Species          *string `json:"species,omitempty"`
+	Genus            *string `json:"genus,omitempty"`
+	Family           *string `json:"family,omitempty"`
+	Order            *string `json:"order,omitempty"`
+	Class            *string `json:"class,omitempty"`
+	Phylum           *string `json:"phylum,omitempty"`
+	Kingdom          *string `json:"kingdom,omitempty"`
+	Others           *string `json:"others,omitempty"`
+}
+
+type ObservationDetail struct {
+	ObservationID         *uint      `json:"observation_id"`
+	ObservationUserID     *int       `json:"observation_user_id"`
+	ObservationUser       *string    `json:"observation_user"`
+	ObservationMethodID   *int       `json:"observation_method_id"`
+	ObservationMethodName *string    `json:"observation_method_name"`
+	PageID                *int      `json:"page_id,omitempty"`
+	Behavior              *string   `json:"behavior,omitempty"`
+	ObservedAt            time.Time `json:"observed_at"`
+}
+
+type SpecimenDetail struct {
+	SpecimenID            *uint      `json:"specimen_id"`
+	SpecimenUserID        *int       `json:"specimen_user_id"`
+	SpecimenUser          *string    `json:"specimen_user"`
+	SpecimenMethodsID     *int       `json:"specimen_methods_id"`
+	SpecimenMethodsCommon *string    `json:"specimen_methods_common"`
+	CreatedAt             *time.Time `json:"created_at"`
+	PageID                *int      `json:"page_id,omitempty"`
+	InstitutionID         *int       `json:"institution_id"`
+	InstitutionCode       *string    `json:"institution_code"`
+	CollectionID          *string   `json:"collection_id,omitempty"`
+}
+
+type IdentificationDetail struct {
+	IdentificationID     *uint      `json:"identification_id"`
+	IdentificationUserID *int       `json:"identification_user_id"`
+	IdentificationUser   *string    `json:"identification_user"`
+	IdentifiedAt         time.Time `json:"identified_at"`
+	SourceInfo           *string   `json:"source_info,omitempty"`
+}
+
+type AttachmentDetail struct {
+	AttachmentID *uint   `json:"attachment_id"`
+	FilePath     *string `json:"file_path"`
+	FileName     *string `json:"file_name"`
+	Note	     *string `json:"note"`
+}

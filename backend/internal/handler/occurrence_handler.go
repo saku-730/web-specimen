@@ -15,6 +15,7 @@ type OccurrenceHandler interface {
 	CreateOccurrence(c *gin.Context)
 	AttachFiles(c *gin.Context)
 	SearchPage(c *gin.Context)
+	GetOccurrenceDetail(c *gin.Context)
 }
 
 type occurrenceHandler struct {
@@ -135,4 +136,27 @@ func (h *occurrenceHandler) SearchPage(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, response)
+}
+
+
+func (h *occurrenceHandler) GetOccurrenceDetail(c *gin.Context) {
+	//get query paramate
+	idStr := c.Param("occurrence_id")
+	id, err := strconv.ParseUint(idStr, 10, 32)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid id format"})
+		return
+	}
+
+	detail, err := h.service.GetOccurrenceDetail(uint(id))
+	if err != nil {
+		if err == gorm.ErrRecordNotFound {
+			c.JSON(http.StatusNotFound, gin.H{"error": "not found occurrence data"})
+		} else {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "failed get data information: " + err.Error()})
+		}
+		return
+	}
+
+	c.JSON(http.StatusOK, detail)
 }

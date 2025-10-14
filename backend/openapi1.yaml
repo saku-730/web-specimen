@@ -333,25 +333,7 @@ paths:
           content:
             multipart/form-data:
               schema:
-                type: object
-                properties:
-                  occurrences:
-                    $ref: '#/components/schemas/Occurrence_detail'
-                  metadata:
-                    type: object
-                    properties:
-                      total_results:
-                        type: integer
-                        example: 100
-                      current_page:
-                        type: integer
-                        example: 1
-                      per_page:
-                        type: integer
-                        example: 10
-                      total_pages:
-                        type: integer
-                        example: 10
+                $ref: '#/components/schemas/Occurrence_detail'
         "400":
           $ref: '#/components/responses/BadRequest'
         "500":
@@ -1062,6 +1044,12 @@ components:
         file_path:
           type: string
           example: "sample.jpg"
+        file_name:
+          type: string
+          example: "sample.jpg"
+        note:
+          type: string
+          example: "sample note"
     Attachment_infos:
       type: array
       items:
@@ -1127,10 +1115,160 @@ components:
     Occurrence_detail:
       type: object
       properties:
-        occurrence:
-          $ref: '#/components/schemas/Occurrence'
+        user_id:
+          type: integer
+          example: 1
+        user_name:
+          type: string
+          example: "admin"
+        project_id:
+          type: integer
+          example: 1
+        project_name:
+          type: string
+          example: "test project"
+        individual_id:
+          type: integer
+          example: 1
+        lifestage:
+          type: string
+          example: "adult"
+        sex:
+          type: string
+          example: "male"
+        body_length:
+          type: string
+          example: "10mm"
+        created_at:
+          type: string
+          format: date-time
+          example: "2024-01-01T00:00:00Z"
+        language_id:
+          type: integer
+          example: 1
+        latitude:
+          type: number
+          format: float
+          example: 35.6895
+        longitude:
+          type: number
+          format: float
+          example: 139.6917
+        place_name:
+          type: string
+          example: "Tokyo shinjuku"
+        note:
+          type: string
+          example: "sample note"
+        classification:
+          $ref: '#/components/schemas/Classification'
+        observation:
+          type: array
+          description: "list of observations"
+          items:
+            $ref: '#/components/schemas/Fyll_observation'
+        specimen:
+          type: array
+          description: "list of specimens"
+          items:
+            $ref: '#/components/schemas/Full_specimen'
+        identification:
+          type: array
+          description: "list of identifications"
+          items:
+            $ref: '#/components/schemas/Full_identification'
         attachments:
-          $ref: '#/components/schemas/Attachment_infos'
+          type: array
+          description: "list of attached files"
+          items:
+            $ref: '#/components/schemas/Attachment_info'
+    
+    Fyll_observation:
+      type: object
+      properties:  
+        observation_id:
+          type: integer
+          example: 1
+          readOnly: true
+        observation_user_id:
+          type: integer
+          example: 1
+        observation_user:
+          type: string
+          example: "admin"
+        observation_method_id:
+          type: integer
+          example: 1
+        observation_method_name:
+          type: string
+          example: "Trap"
+        page_id:
+          type: integer
+          example: 1
+        behavior:
+          type: string
+          example: "sample behavior"
+        observed_at:
+          type: string
+          format: date-time
+          example: "2024-01-01T00:00:00Z"
+
+    Full_specimen:
+      type: object
+      properties:
+        specimen_id:
+          type: integer
+          example: 1
+          readOnly: true
+        specimen_user_id:
+          type: integer
+          example: 1
+        specimen_user:
+          type: string
+          example: "admin"
+        specimen_methods_id:
+          type: integer
+          example: 1
+        specimen_methods_common:
+          type: string
+          example: "Dried"
+        created_at:
+          type: string
+          format: date-time
+          example: "2024-12-31T23:59:59Z"
+        page_id:
+          type: integer
+          example: 1
+        institution_id:
+          type: integer
+          example: 1
+        institution_code:
+          type: string
+          example: "INST1"
+        collection_id:
+          type: string
+          example: "C-001"
+    Full_identification:
+      type: object
+      properties:
+        identification_id:
+          type: integer
+          example: 1
+          readOnly: true
+        identification_user_id:
+          type: integer
+          example: 1
+        identification_user:
+          type: string
+          example: "admin"
+        identified_at:
+          type: string
+          format: date-time
+          example: "2024-01-01T00:00:00Z"
+        source_info:
+          type: string
+          example: "sample identification sorce paper"
+
     Occurrence_details:
       type: array
       description: "list of occurrence details"
