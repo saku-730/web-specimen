@@ -6,7 +6,7 @@ type FileExtension struct {
 	// --- Table Columns ---
 	ExtensionID   uint    `gorm:"primaryKey;column:extension_id"`
 	ExtensionText *string `gorm:"column:extension_text"`
-	FileTypeID    *int    `gorm:"column:file_type_id"`
+	FileTypeID    *uint    `gorm:"column:file_type_id"`
 
 	// --- Relationships ---
 

@@ -18,4 +18,4 @@ func NewAttachmentGroupRepository() AttachmentGroupRepository {
 
 func (r *attachmentGroupRepository) Create(tx *gorm.DB, group *entity.AttachmentGroup) error {
 	return tx.Create(group).Error
-
+}

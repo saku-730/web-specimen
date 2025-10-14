@@ -45,10 +45,13 @@ func main() {
 	occRepo := repository.NewOccurrenceRepository(db)
 	userRepo := repository.NewUserRepository(db)
 	userDefaultsRepo := repository.NewUserDefaultsRepository(db)
+	attachmentRepo := repository.NewAttachmentRepository()
+	attachmentGroupRepo := repository.NewAttachmentGroupRepository()
+	fileExtensionRepo := repository.NewFileExtensionRepository()
 
 	// Service層を初期化
 	authService := service.NewAuthService(userRepo,cfg)
-	occService := service.NewOccurrenceService(db,occRepo,userDefaultsRepo)
+	occService := service.NewOccurrenceService(db,occRepo,userDefaultsRepo,attachmentRepo,attachmentGroupRepo,fileExtensionRepo)
 
 	// Handler層を初期化
 	authHandler := handler.NewAuthHandler(authService)

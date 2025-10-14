@@ -2,7 +2,7 @@
 package service
 
 import (
-	"errors" // エラーハンドリングで使う
+	"errors" 
 	"gorm.io/gorm"
 	"fmt"
 	"encoding/json"
@@ -12,6 +12,7 @@ import (
 	"path/filepath"
 	"io"
 	"strings"
+	"math"
 
 	"github.com/saku-730/web-specimen/backend/internal/entity"
 	"github.com/saku-730/web-specimen/backend/internal/model"
@@ -24,6 +25,7 @@ type OccurrenceService interface {
 	GetDefaultValues(userID int) (*model.DefaultValues, error)
 	CreateOccurrence(req *model.OccurrenceCreate)(*entity.Occurrence, error)
 	AttachFiles (occurrenceID uint, userID uint, files []*multipart.FileHeader) ([]string, error)
+	Search(query *model.SearchQuery) (*model.SearchResponse, error)
 }
 
 // occurrenceService構造体。必要なリポジトリを全部持たせるのだ。
@@ -43,7 +45,7 @@ func NewOccurrenceService(
 	defaultsRepo repository.UserDefaultsRepository,
 	attRepo repository.AttachmentRepository, 
 	attGroupRepo repository.AttachmentGroupRepository,
-	fileExtRepo	repository.FileExtensionRepository
+	fileExtRepo	repository.FileExtensionRepository,
 ) OccurrenceService {
 	return &occurrenceService{
 		db:	      db,
@@ -55,7 +57,7 @@ func NewOccurrenceService(
 	}
 }
 
-// PrepareCreatePage get dropdown list for create page
+// PrepareCreatePage get dropdown list for create,search page
 func (s *occurrenceService) PrepareCreatePage() (*model.Dropdowns, error) {
 	return s.occRepo.GetDropdownLists()
 }
@@ -236,7 +238,7 @@ func (s *occurrenceService) AttachFiles(occurrenceID uint, userID uint, files []
 			// unified to lowercase
 			ext = strings.ToLower(ext)
 
-			var extensionID *int
+			var extensionID *uint
 	
 			if ext != "" {
 				fileExtEntity, err := s.fileExtRepo.FindByText(tx, ext)
@@ -250,7 +252,8 @@ func (s *occurrenceService) AttachFiles(occurrenceID uint, userID uint, files []
 					extensionID = &fileExtEntity.ExtensionID
 				}
 			}
-			
+		
+			now := time.Now()
 			// --- save to database ---
 			//attachment table
 			attachment := &entity.Attachment{
@@ -258,7 +261,7 @@ func (s *occurrenceService) AttachFiles(occurrenceID uint, userID uint, files []
 				OriginalFilename: &fileHeader.Filename,
 				ExtensionID:      extensionID, 
 				UserID:           &userID,
-				Uploaded:         time.Now(),
+				Uploaded:         &now,
 			}
 			//Repository 
 			if err := s.attachmentRepo.Create(tx, attachment); err != nil {
@@ -276,11 +279,6 @@ func (s *occurrenceService) AttachFiles(occurrenceID uint, userID uint, files []
 			}
 			
 			savedFileNames = append(savedFileNames, uniqueFileName)
-			}
-			if err := s.attachmentRepo.Create(tx, attachment); err != nil {
-				return err
-
-
 		}
 		return nil
 	})
@@ -291,4 +289,129 @@ func (s *occurrenceService) AttachFiles(occurrenceID uint, userID uint, files []
 	}
 
 	return savedFileNames, nil
+}
+
+
+// Searchメソッドを実装
+func (s *occurrenceService) Search(query *model.SearchQuery) (*model.SearchResponse, error) {
+	// ページネーションのデフォルト値を設定
+	if query.Page <= 0 { query.Page = 1 }
+	if query.PerPage <= 0 { query.PerPage = 10 }
+
+	occurrences, total, err := s.occRepo.Search(query)
+	if err != nil {
+		return nil, err
+	}
+
+	// --- entityからレスポンス用のmodelに変換する ---
+	var results []model.OccurrenceResult
+	for _, occ := range occurrences {
+		result := model.OccurrenceResult{
+			UserID:       *occ.UserID,
+			UserName:     occ.User.UserName,
+			ProjectID:    *occ.ProjectID,
+			ProjectName:  occ.Project.ProjectName,
+			IndividualID: occ.IndividualID,
+			Lifestage:    occ.Lifestage,
+			Sex:          occ.Sex,
+			BodyLength:   occ.BodyLength,
+			CreatedAt:    occ.CreatedAt,
+			LanguageID:   occ.LanguageID,
+			Note:         occ.Note,
+		}
+
+		if occ.Place != nil && occ.Place.Coordinates != nil {
+			result.Latitude = occ.Place.Coordinates.Lat
+			result.Longitude = occ.Place.Coordinates.Lng
+		}
+
+		if occ.Place != nil && occ.Place.PlaceNamesJSON != nil {
+			var placeNameData map[string]string
+			if err := json.Unmarshal(occ.Place.PlaceNamesJSON.ClassPlaceName, &placeNameData); err == nil {
+				result.PlaceName = placeNameData["name"]
+			}
+		}
+
+		if occ.ClassificationJSON != nil {
+			var classData map[string]string
+			if err := json.Unmarshal(occ.ClassificationJSON.ClassClassification, &classData); err == nil {
+				result.Classification = &model.ClassificationResult{
+					ClassificationID: occ.ClassificationJSON.ClassificationID,
+					Species:          classData["species"],
+					Genus:            classData["genus"],
+					Family:           classData["family"],
+					Order:            classData["order"],
+					Class:            classData["class"],
+					Phylum:           classData["phylum"],
+					Kingdom:          classData["kingdom"],
+					Others:           classData["others"],
+				}
+			}
+		}
+
+		if len(occ.Observations) > 0 {
+			obs := occ.Observations[0] // 代表して最初の1件を取得
+			result.Observation = &model.ObservationResult{
+				ObservationID:         obs.ObservationsID,
+				ObservationUserID:     *obs.UserID,
+				ObservationUser:       obs.User.UserName,
+				ObservationMethodID:   *obs.ObservationMethodID,
+				ObservationMethodName: obs.ObservationMethod.MethodCommonName,
+				PageID:                obs.ObservationMethod.PageID,
+				Behavior:              obs.Behavior,
+				ObservedAt:            obs.ObservedAt,
+			}
+		}
+
+		if len(occ.Specimens) > 0 && len(occ.MakeSpecimens) > 0 {
+			spec := occ.Specimens[0]         // 代表して最初の標本を取得
+			makeSpec := occ.MakeSpecimens[0] // 代表して最初の標本作成記録を取得
+
+			result.Specimen = &model.SpecimenResult{
+				SpecimenID:            spec.SpecimenID,
+				SpecimenUserID:        *makeSpec.UserID,
+				SpecimenUser:          makeSpec.User.UserName, // PreloadしたUser情報を展開
+				SpecimenMethodsID:     *spec.SpecimenMethodID,
+				SpecimenMethodsCommon: spec.SpecimenMethod.MethodCommonName, // PreloadしたMethod情報を展開
+				PageID:                spec.SpecimenMethod.PageID,
+				InstitutionID:         *spec.InstitutionID,
+				InstitutionCode:       spec.InstitutionIDCode.InstitutionCode, // Preloadした機関情報を展開
+				CollectionID:          spec.CollectionID,
+			}
+		}
+
+		// Identification の情報をマッピングするのだ
+		if len(occ.Identifications) > 0 {
+			ident := occ.Identifications[0] // 代表して最初の同定記録を取得
+			
+			result.Identification = &model.IdentificationResult{
+				IdentificationID:     ident.IdentificationID,
+				IdentificationUserID: *ident.UserID,
+				IdentificationUser:   ident.User.UserName, // PreloadしたUser情報を展開
+				IdentifiedAt:         ident.IdentificatedAt,
+				SourceInfo:           ident.SourceInfo,
+			}
+		}
+
+		results = append(results, result)
+	}
+
+	// メタデータを計算
+	totalPages := 0
+	if total > 0 {
+		totalPages = int(math.Ceil(float64(total) / float64(query.PerPage)))
+	}
+
+	// 最終的なレスポンスを組み立てる
+	response := &model.SearchResponse{
+		Results: results,
+		Metadata: model.Metadata{
+			TotalResults: int(total),
+			CurrentPage:  query.Page,
+			PerPage:      query.PerPage,
+			TotalPages:   totalPages,
+		},
+	}
+
+	return response, nil
 }
