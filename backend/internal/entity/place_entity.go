@@ -59,7 +59,7 @@ type Place struct {
 
 	// ◆ Belongs To (所属)の関係 ◆
 	// placesテーブルが外部キー(place_name_id)を持っている関係なのだ ➡️
-	PlaceNamesJSON PlaceNamesJSON `gorm:"foreignKey:PlaceNameID"`
+	PlaceNamesJSON *PlaceNamesJSON `gorm:"foreignKey:PlaceNameID"`
 
 	// ◆ Has Many (所有)の関係 ◆
 	// 'occurrence'テーブルからplace_idで参照されている関係なのだ ⬅️

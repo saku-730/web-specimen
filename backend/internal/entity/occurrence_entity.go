@@ -29,7 +29,7 @@ type Occurrence struct {
 	// occurrenceテーブルが外部キーを持っている関係なのだ ➡️
 	ClassificationJSON ClassificationJSON `gorm:"foreignKey:ClassificationID"`
 	Language           Language           `gorm:"foreignKey:LanguageID"`
-	Place              Place              `gorm:"foreignKey:PlaceID"`
+	Place              *Place              `gorm:"foreignKey:PlaceID"`
 	Project            Project            `gorm:"foreignKey:ProjectID"`
 	User               User               `gorm:"foreignKey:UserID"`
 
