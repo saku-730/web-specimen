@@ -106,8 +106,6 @@ func (r *occurrenceRepository) CreateOccurrence(tx *gorm.DB, occurrence *entity.
 }
 
 
-// ... NewOccurrenceRepository と既存のメソッドは省略 ...
-
 // Searchメソッドを実装
 func (r *occurrenceRepository) Search(query *model.SearchQuery) ([]entity.Occurrence, int64, error) {
 	var occurrences []entity.Occurrence
@@ -115,15 +113,16 @@ func (r *occurrenceRepository) Search(query *model.SearchQuery) ([]entity.Occurr
 
 	// ベースとなるクエリを組み立てる。
 	tx := r.db.Model(&entity.Occurrence{}).
-		Joins("JOIN users ON users.user_id = occurrence.user_id").
-		Joins("JOIN projects ON projects.project_id = occurrence.project_id").
-		Joins("JOIN places ON places.place_id = occurrence.place_id").
+		Joins("LEFT JOIN users ON users.user_id = occurrence.user_id").
+		Joins("LEFT JOIN projects ON projects.project_id = occurrence.project_id").
+		Joins("LEFT JOIN places ON places.place_id = occurrence.place_id").
 		Joins("LEFT JOIN place_names_json ON place_names_json.place_name_id = places.place_name_id").
 		Joins("LEFT JOIN classification_json ON classification_json.classification_id = occurrence.classification_id").
 		Joins("LEFT JOIN observations ON observations.occurrence_id = occurrence.occurrence_id").
 		Joins("LEFT JOIN make_specimen ON make_specimen.occurrence_id = occurrence.occurrence_id").
 		Joins("LEFT JOIN specimen ON specimen.specimen_id = make_specimen.specimen_id").
 		Joins("LEFT JOIN identifications ON identifications.occurrence_id = occurrence.occurrence_id")
+
 
 	// --- クエリパラメータに基づいて動的にWHERE句を追加 ---
 	if query.UserID != "" { tx = tx.Where("occurrence.user_id = ?", query.UserID) }
@@ -150,21 +149,25 @@ func (r *occurrenceRepository) Search(query *model.SearchQuery) ([]entity.Occurr
 	if query.Behavior != "" { tx = tx.Where("observations.behavior LIKE ?", "%"+query.Behavior+"%") }
 	if query.SpecimenUserID != "" { tx = tx.Where("make_specimen.user_id = ?", query.SpecimenUserID) }
 	if query.SpecimenMethodsID != "" { tx = tx.Where("specimen.specimen_method_id = ?", query.SpecimenMethodsID) }
-	if query.SpecimenCreatedStart != "" && query.SpecimenCreatedEnd != "" { tx = tx.Where("make_specimen.created_at BETWEEN ? AND ?", query.SpecimenCreatedStart, query.SpecimenCreatedEnd) }
 	if query.InstitutionID != "" { tx = tx.Where("specimen.institution_id = ?", query.InstitutionID) }
 	if query.CollectionID != "" { tx = tx.Where("specimen.collection_id LIKE ?", "%"+query.CollectionID+"%") }
 	if query.IdentificationUserID != "" { tx = tx.Where("identifications.user_id = ?", query.IdentificationUserID) }
 	if query.IdentifiedStart != "" && query.IdentifiedEnd != "" { tx = tx.Where("identifications.identificated_at BETWEEN ? AND ?", query.IdentifiedStart, query.IdentifiedEnd) }
 	
-	// --- データベースへのクエリ実行 ---
-	// 1. まず全体の件数を取得
-	if err := tx.Count(&total).Error; err != nil {
-		return nil, 0, err
+
+	//if err := tx.Count(&total).Error; err != nil {
+	//	return nil, 0, err
+	//}
+
+	countTx := tx.Session(&gorm.Session{})
+	if err := countTx.Select("COUNT(DISTINCT occurrence.occurrence_id)").Count(&total).Error; err != nil {
+	    return nil, 0, err
 	}
 
-	// 2. ページネーションを適用して、実際のデータを取得
+	//pagenation
 	offset := (query.Page - 1) * query.PerPage
-	err := tx.Limit(query.PerPage).Offset(offset).
+	dataTx := tx.Session(&gorm.Session{})
+	err := dataTx.Limit(query.PerPage).Offset(offset).
 		Preload("User").
 		Preload("Project").
 		Preload("Place.PlaceNamesJSON").
@@ -180,3 +183,5 @@ func (r *occurrenceRepository) Search(query *model.SearchQuery) ([]entity.Occurr
 
 	return occurrences, total, err
 }
+
+

@@ -14,8 +14,7 @@ type OccurrenceHandler interface {
 	GetCreatePage(c *gin.Context)
 	CreateOccurrence(c *gin.Context)
 	AttachFiles(c *gin.Context)
-	GetSearchPage(c *gin.Context)
-	Search(c *gin.Context)
+	SearchPage(c *gin.Context)
 }
 
 type occurrenceHandler struct {
@@ -109,19 +108,20 @@ func (h *occurrenceHandler) AttachFiles(c *gin.Context) {
 	})
 }
 
-
-func (h *occurrenceHandler) GetSearchPage(c *gin.Context) {
-	dropdowns, err := h.service.PrepareCreatePage()
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"prepare create page service error": err.Error()})
-		return
+func (h *occurrenceHandler) SearchPage(c *gin.Context) {
+	//no query get dropdown only
+	if len(c.Request.URL.RawQuery) == 0 {
+		
+		dropdowns, err := h.service.PrepareCreatePage()
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"prepare create page service error": err.Error()})
+			return
+		}
+		c.JSON(http.StatusOK, dropdowns)
+		return 
 	}
 
-	c.JSON(http.StatusOK, dropdowns)
-}
-
-
-func (h *occurrenceHandler) Search(c *gin.Context) {
+	//search with query
 	var query model.SearchQuery
 	if err := c.ShouldBindQuery(&query); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid query paramate: " + err.Error()})

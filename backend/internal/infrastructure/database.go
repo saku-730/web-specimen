@@ -14,6 +14,7 @@ func NewDatabaseConnection(cfg *configs.Config) (*gorm.DB, error) {
 	dsn := cfg.DSN()
 
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
+	db = db.Debug()
 
 	if err != nil {
 		log.Printf("Failed database connect: %v\n", err)

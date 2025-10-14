@@ -70,7 +70,7 @@ type Metadata struct {
 
 // OccurrenceResult は検索結果の各項目の詳細な構造なのだ
 type OccurrenceResult struct {
-	UserID         uint                   `json:"user_id"`
+	UserID         *uint                   `json:"user_id"`
 	UserName       string                `json:"user_name"`
 	ProjectID      *uint                   `json:"project_id"`
 	ProjectName    *string                `json:"project_name"`
@@ -110,7 +110,7 @@ type ObservationResult struct {
 	ObservationUser       *string    `json:"observation_user"`
 	ObservationMethodID   *uint       `json:"observation_method_id"`
 	ObservationMethodName *string    `json:"observation_method_name"`
-	PageID                *int      `json:"page_id,omitempty"`
+	PageID                *uint      `json:"page_id,omitempty"`
 	Behavior              *string   `json:"behavior,omitempty"`
 	ObservedAt            *time.Time `json:"observed_at"`
 }
@@ -131,7 +131,7 @@ type SpecimenResult struct {
 // IdentificationResult は同定情報のレスポンス構造なのだ
 type IdentificationResult struct {
 	IdentificationID     *uint      `json:"identification_id"`
-	IdentificationUserID *int       `json:"identification_user_id"`
+	IdentificationUserID *uint       `json:"identification_user_id"`
 	IdentificationUser   *string    `json:"identification_user"`
 	IdentifiedAt         *time.Time `json:"identified_at"`
 	SourceInfo           *string   `json:"source_info,omitempty"`

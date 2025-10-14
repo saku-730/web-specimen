@@ -86,21 +86,6 @@ paths:
     get:
       tags:
         - "Occurrence"
-      summary: "prepare search page"
-      responses:
-        "200":
-          description: "Success"
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Dropdown_list'
-        "400":
-          $ref: '#/components/responses/BadRequest'
-        "500":
-          $ref: '#/components/responses/ServerError'
-    post:
-      tags:
-        - "Occurrence"
       summary: "search occurrence data by various conditions"
       parameters:
         - name: page
@@ -327,24 +312,9 @@ paths:
           content:
             application/json:
               schema:
-                properties:
-                  occurrence_results:
-                    $ref: '#/components/schemas/FullOccurrences'
-                  metadata:
-                    type: object
-                    properties:
-                      total_results:
-                        type: integer
-                        example: 100
-                      current_page:
-                        type: integer
-                        example: 1
-                      per_page:
-                        type: integer
-                        example: 10
-                      total_pages:
-                        type: integer
-                        example: 10
+                oneOf:
+                  - $ref: '#/components/schemas/Dropdown_list'
+                  - $ref: '#/components/schemas/SearchResponse'
         "400":
           $ref: '#/components/responses/BadRequest'
         "500":
@@ -1300,6 +1270,27 @@ components:
       items:
         $ref: '#/components/schemas/FullOccurrence'
 
+    SearchResponse:
+      type: object
+      properties:
+        occurrences:
+          $ref: '#/components/schemas/FullOccurrences'
+        metadata:
+          type: object
+          properties:
+            total_results:
+              type: integer
+              example: 100
+            current_page:
+              type: integer
+              example: 1
+            per_page:
+              type: integer
+              example: 10
+            total_pages:
+              type: integer
+              example: 10
+
     OccurrenceObservation:
       type: object
       properties:
@@ -1499,6 +1490,7 @@ components:
       schema:
         type: integer
         example: 1
+
 
   responses:
     BadRequest:

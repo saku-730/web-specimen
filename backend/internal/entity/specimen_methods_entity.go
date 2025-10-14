@@ -8,7 +8,7 @@ type SpecimenMethod struct {
 	// --- Table Columns ---
 	SpecimenMethodsID uint    `gorm:"primaryKey;column:specimen_methods_id"`
 	MethodCommonName  *string `gorm:"column:method_common_name"`
-	PageID            *int    `gorm:"column:page_id"`
+	PageID            *uint    `gorm:"column:page_id"`
 
 	// --- Relationships ---
 

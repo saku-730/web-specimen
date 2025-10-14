@@ -8,7 +8,7 @@ type ObservationMethod struct {
 	// --- Table Columns ---
 	ObservationMethodID uint    `gorm:"primaryKey;column:observation_method_id"`
 	MethodCommonName    *string `gorm:"column:method_common_name"`
-	PageID              *int    `gorm:"column:pageid"`
+	PageID              *uint    `gorm:"column:pageid"`
 
 	// --- Relationships ---
 

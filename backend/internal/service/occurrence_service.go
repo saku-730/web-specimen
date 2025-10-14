@@ -307,7 +307,7 @@ func (s *occurrenceService) Search(query *model.SearchQuery) (*model.SearchRespo
 	var results []model.OccurrenceResult
 	for _, occ := range occurrences {
 		result := model.OccurrenceResult{
-			UserID:       *occ.UserID,
+			UserID:       occ.UserID,
 			UserName:     occ.User.UserName,
 			ProjectID:    occ.ProjectID,
 			ProjectName:  occ.Project.ProjectName,
@@ -328,23 +328,34 @@ func (s *occurrenceService) Search(query *model.SearchQuery) (*model.SearchRespo
 		if occ.Place != nil && occ.Place.PlaceNamesJSON != nil {
 			var placeNameData map[string]string
 			if err := json.Unmarshal(occ.Place.PlaceNamesJSON.ClassPlaceName, &placeNameData); err == nil {
-				result.PlaceName = placeNameData["name"]
+				name := placeNameData["name"]
+				result.PlaceName = &name
 			}
 		}
 
 		if occ.ClassificationJSON != nil {
 			var classData map[string]string
 			if err := json.Unmarshal(occ.ClassificationJSON.ClassClassification, &classData); err == nil {
+				species := classData["species"]
+				genus := classData["genus"]
+				family := classData["family"]
+				order := classData["order"]
+				class := classData["class"]
+				phylum := classData["phylum"]
+				kingdom := classData["kingdom"]
+				others := classData["others"]
+
+
 				result.Classification = &model.ClassificationResult{
-					ClassificationID: occ.ClassificationJSON.ClassificationID,
-					Species:          classData["species"],
-					Genus:            classData["genus"],
-					Family:           classData["family"],
-					Order:            classData["order"],
-					Class:            classData["class"],
-					Phylum:           classData["phylum"],
-					Kingdom:          classData["kingdom"],
-					Others:           classData["others"],
+					ClassificationID: &occ.ClassificationJSON.ClassificationID,
+					Species:          &species,
+					Genus:            &genus,
+					Family:           &family,
+					Order:            &order,
+					Class:            &class,
+					Phylum:           &phylum,
+					Kingdom:          &kingdom,
+					Others:           &others,
 				}
 			}
 		}
@@ -352,10 +363,10 @@ func (s *occurrenceService) Search(query *model.SearchQuery) (*model.SearchRespo
 		if len(occ.Observations) > 0 {
 			obs := occ.Observations[0] // 代表して最初の1件を取得
 			result.Observation = &model.ObservationResult{
-				ObservationID:         obs.ObservationsID,
-				ObservationUserID:     *obs.UserID,
-				ObservationUser:       obs.User.UserName,
-				ObservationMethodID:   *obs.ObservationMethodID,
+				ObservationID:         &obs.ObservationsID,
+				ObservationUserID:     obs.UserID,
+				ObservationUser:       &obs.User.UserName,
+				ObservationMethodID:   obs.ObservationMethodID,
 				ObservationMethodName: obs.ObservationMethod.MethodCommonName,
 				PageID:                obs.ObservationMethod.PageID,
 				Behavior:              obs.Behavior,
@@ -368,14 +379,14 @@ func (s *occurrenceService) Search(query *model.SearchQuery) (*model.SearchRespo
 			makeSpec := occ.MakeSpecimens[0] // 代表して最初の標本作成記録を取得
 
 			result.Specimen = &model.SpecimenResult{
-				SpecimenID:            spec.SpecimenID,
-				SpecimenUserID:        *makeSpec.UserID,
-				SpecimenUser:          makeSpec.User.UserName, // PreloadしたUser情報を展開
-				SpecimenMethodsID:     *spec.SpecimenMethodID,
-				SpecimenMethodsCommon: spec.SpecimenMethod.MethodCommonName, // PreloadしたMethod情報を展開
+				SpecimenID:            &spec.SpecimenID,
+				SpecimenUserID:        makeSpec.UserID,
+				SpecimenUser:          &makeSpec.User.UserName, 
+				SpecimenMethodsID:     spec.SpecimenMethodID,
+				SpecimenMethodsCommon: spec.SpecimenMethod.MethodCommonName, 
 				PageID:                spec.SpecimenMethod.PageID,
-				InstitutionID:         *spec.InstitutionID,
-				InstitutionCode:       spec.InstitutionIDCode.InstitutionCode, // Preloadした機関情報を展開
+				InstitutionID:         spec.InstitutionID,
+				InstitutionCode:       spec.InstitutionIDCode.InstitutionCode,
 				CollectionID:          spec.CollectionID,
 			}
 		}
@@ -385,9 +396,9 @@ func (s *occurrenceService) Search(query *model.SearchQuery) (*model.SearchRespo
 			ident := occ.Identifications[0] // 代表して最初の同定記録を取得
 			
 			result.Identification = &model.IdentificationResult{
-				IdentificationID:     ident.IdentificationID,
-				IdentificationUserID: *ident.UserID,
-				IdentificationUser:   ident.User.UserName, // PreloadしたUser情報を展開
+				IdentificationID:     &ident.IdentificationID,
+				IdentificationUserID: ident.UserID,
+				IdentificationUser:   &ident.User.UserName, 
 				IdentifiedAt:         ident.IdentificatedAt,
 				SourceInfo:           ident.SourceInfo,
 			}
