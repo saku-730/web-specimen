@@ -14,7 +14,7 @@ type AttachmentGroup struct {
 	// ◆ Belongs To (所属)の関係 ◆
 	// attachment_goupテーブルが外部キーを持っている関係なのだ ➡️
 	Occurrence Occurrence `gorm:"foreignKey:OccurrenceID"`
-	Attachment Attachment `gorm:"foreignKey:AttachmentID"`
+	Attachment *Attachment `gorm:"foreignKey:AttachmentID"`
 }
 
 // TableName メソッドで、GORMにこの構造体がどのテーブルに対応するかを教えるのだ

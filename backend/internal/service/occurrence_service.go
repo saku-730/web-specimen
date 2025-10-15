@@ -436,15 +436,15 @@ func (s *occurrenceService) GetOccurrenceDetail(id uint) (*model.OccurrenceDetai
 
 	// --- entityからレスポンス用のmodelに変換する ---
 	response := &model.OccurrenceDetailResponse{
-		UserID:       int(*occ.UserID),
+		UserID:       *occ.UserID,
 		UserName:     occ.User.UserName,
-		ProjectID:    int(*occ.ProjectID),
+		ProjectID:    occ.ProjectID,
 		ProjectName:  occ.Project.ProjectName,
 		IndividualID: occ.IndividualID,
 		Lifestage:    occ.Lifestage,
 		Sex:          occ.Sex,
 		BodyLength:   occ.BodyLength,
-		CreatedAt:    occ.CreatedAt,
+		CreatedAt:    *occ.CreatedAt,
 		LanguageID:   occ.LanguageID,
 		Note:         occ.Note,
 	}
@@ -456,33 +456,44 @@ func (s *occurrenceService) GetOccurrenceDetail(id uint) (*model.OccurrenceDetai
 	if occ.Place != nil && occ.Place.PlaceNamesJSON != nil {
 		var placeNameData map[string]string
 		if err := json.Unmarshal(occ.Place.PlaceNamesJSON.ClassPlaceName, &placeNameData); err == nil {
-			response.PlaceName = placeNameData["name"]
+			placeName := placeNameData["name"]
+			response.PlaceName = &placeName
 		}
 	}
 
 	if occ.ClassificationJSON != nil {
 		var classData map[string]string
 		json.Unmarshal(occ.ClassificationJSON.ClassClassification, &classData)
+		
+		species := classData["species"]
+		genus := classData["genus"]
+		family := classData["family"]
+		order := classData["order"]
+		class := classData["class"]
+		phylum := classData["phylum"]
+		kingdom := classData["kingdom"]
+		others := classData["order"]
+
 		response.Classification = &model.ClassificationDetail{
-			ClassificationID: occ.ClassificationJSON.ClassificationID,
-			Species:          classData["species"],
-			Genus:            classData["genus"],
-			Family:           classData["family"],
-			Order:            classData["order"],
-			Class:            classData["class"],
-			Phylum:           classData["phylum"],
-			Kingdom:          classData["kingdom"],
-			Others:           classData["others"],
+			ClassificationID: &occ.ClassificationJSON.ClassificationID,
+			Species:          &species,
+			Genus:      	  &genus,      
+			Family:           &family,
+			Order:            &order,
+			Class:            &class,
+			Phylum:           &phylum,
+			Kingdom:          &kingdom,
+			Others:           &others,
 		}
 	}
 
 	// Observations (リスト) の変換
 	for _, obs := range occ.Observations {
 		response.Observations = append(response.Observations, model.ObservationDetail{
-			ObservationID:         obs.ObservationsID,
-			ObservationUserID:     int(*obs.UserID),
-			ObservationUser:       obs.User.UserName,
-			ObservationMethodID:   int(*obs.ObservationMethodID),
+			ObservationID:         &obs.ObservationsID,
+			ObservationUserID:     obs.UserID,
+			ObservationUser:       &obs.User.UserName,
+			ObservationMethodID:   obs.ObservationMethodID,
 			ObservationMethodName: obs.ObservationMethod.MethodCommonName,
 			PageID:                obs.ObservationMethod.PageID,
 			Behavior:              obs.Behavior,
@@ -496,21 +507,21 @@ func (s *occurrenceService) GetOccurrenceDetail(id uint) (*model.OccurrenceDetai
 		var makeSpecUser entity.User
 		var makeSpecCreatedAt time.Time
 		for _, ms := range occ.MakeSpecimens {
-			if ms.SpecimenID != nil && *ms.SpecimenID == int(spec.SpecimenID) {
+			if ms.SpecimenID != nil && *ms.SpecimenID == spec.SpecimenID {
 				makeSpecUser = ms.User
-				makeSpecCreatedAt = ms.CreatedAt
+				makeSpecCreatedAt = *ms.CreatedAt
 				break
 			}
 		}
 		response.Specimens = append(response.Specimens, model.SpecimenDetail{
-			SpecimenID:            spec.SpecimenID,
-			SpecimenUserID:        int(makeSpecUser.UserID),
-			SpecimenUser:          makeSpecUser.UserName,
-			SpecimenMethodsID:     int(*spec.SpecimenMethodID),
+			SpecimenID:            &spec.SpecimenID,
+			SpecimenUserID:        &makeSpecUser.UserID,
+			SpecimenUser:          &makeSpecUser.UserName,
+			SpecimenMethodsID:     spec.SpecimenMethodID,
 			SpecimenMethodsCommon: spec.SpecimenMethod.MethodCommonName,
-			CreatedAt:             makeSpecCreatedAt,
+			CreatedAt:             &makeSpecCreatedAt,
 			PageID:                spec.SpecimenMethod.PageID,
-			InstitutionID:         int(*spec.InstitutionID),
+			InstitutionID:         spec.InstitutionID,
 			InstitutionCode:       spec.InstitutionIDCode.InstitutionCode,
 			CollectionID:          spec.CollectionID,
 		})
@@ -519,9 +530,9 @@ func (s *occurrenceService) GetOccurrenceDetail(id uint) (*model.OccurrenceDetai
 	// Identifications (リスト) の変換
 	for _, ident := range occ.Identifications {
 		response.Identifications = append(response.Identifications, model.IdentificationDetail{
-			IdentificationID:     ident.IdentificationID,
-			IdentificationUserID: int(*ident.UserID),
-			IdentificationUser:   ident.User.UserName,
+			IdentificationID:     &ident.IdentificationID,
+			IdentificationUserID: ident.UserID,
+			IdentificationUser:   &ident.User.UserName,
 			IdentifiedAt:         ident.IdentificatedAt,
 			SourceInfo:           ident.SourceInfo,
 		})
@@ -531,8 +542,8 @@ func (s *occurrenceService) GetOccurrenceDetail(id uint) (*model.OccurrenceDetai
 	for _, group := range occ.AttachmentGroups {
 		if group.Attachment != nil {
 			response.Attachments = append(response.Attachments, model.AttachmentDetail{
-				AttachmentID: group.Attachment.AttachmentID,
-				FilePath:     group.Attachment.FilePath,
+				AttachmentID: &group.Attachment.AttachmentID,
+				FilePath:     &group.Attachment.FilePath,
 			})
 		}
 	}

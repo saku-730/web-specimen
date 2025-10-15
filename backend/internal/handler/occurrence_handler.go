@@ -4,6 +4,7 @@ package handler
 import (
 	"net/http"
 	"strconv"
+	"gorm.io/gorm"
 
 	"github.com/gin-gonic/gin"
 	"github.com/saku-730/web-specimen/backend/internal/model"

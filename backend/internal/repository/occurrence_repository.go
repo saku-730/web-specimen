@@ -12,7 +12,6 @@ type OccurrenceRepository interface {
 	GetDropdownLists() (*model.Dropdowns, error)
 	CreateOccurrence(tx *gorm.DB, occurrence *entity.Occurrence, classification *entity.ClassificationJSON, place *entity.Place, placeName *entity.PlaceNamesJSON, observation *entity.Observation, specimen *entity.Specimen, makeSpecimen *entity.MakeSpecimen, identification *entity.Identification) (*entity.Occurrence, error)
 	Search(query *model.SearchQuery) ([]entity.Occurrence, int64, error)
-	GetOccurrenceDetail(id uint) (*model.OccurrenceDetailResponse, error)
 	FindByID(id uint) (*entity.Occurrence, error)
 }
 

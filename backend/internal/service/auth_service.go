@@ -46,7 +46,7 @@ func (s *authService) Login(email, password string) (string, error) {
 	// 3. 認証成功！JWTのClaimsを作成
 	expirationTime := time.Now().Add(24 * time.Hour)
 	claims := &model.Claims{
-		UserID:   user.UserID,
+		UserID:   int(user.UserID),
 		UserName: user.UserName,
 		RegisteredClaims: jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(expirationTime),
