@@ -1,9 +1,10 @@
 // src/app/layout.tsx
+
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
-import Sidebar from "@/components/layout/Sidebar"; // サイドバーをインポート
-import Header from "@/components/layout/Header";   // ヘッダーをインポート
+import Sidebar from "@/components/layout/Sidebar";
+import Header from "@/components/layout/Header";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -20,12 +21,17 @@ export default function RootLayout({
   return (
     <html lang="ja">
       <body className={`${inter.className} bg-gray-100`}>
-        <div className="flex h-screen">
-          <Sidebar /> {/* ⬅️ 左側のサイドバーを配置 */}
-          <div className="flex-1 flex flex-col">
-            <Header /> {/* ⬅️ 上部のヘッダーを配置 */}
+        {/* 'relative' を追加して、子要素の 'absolute' の基準点にするのだ */}
+        <div className="relative min-h-screen">
+          <Sidebar /> {/* ⬅️ このサイドバーは後で「浮いた」存在になる */}
+
+          {/* メインコンテンツのエリア。
+            'pl-20' で、閉じたサイドバーの幅(w-20)と同じだけの左パディングを常に追加するのだ。
+          */}
+          <div className="flex-1 flex flex-col pl-20">
+            <Header />
             <main className="flex-1 p-6 overflow-y-auto">
-              {children} {/* ⬅️ ここに page.tsx の中身が入るのだ */}
+              {children}
             </main>
           </div>
         </div>
