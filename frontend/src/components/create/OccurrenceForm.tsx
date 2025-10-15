@@ -112,41 +112,41 @@ const OccurrenceForm = () => {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 border-b pb-8">
         <div>
           <label htmlFor="user_id" className="block text-sm font-medium text-gray-700">User</label>
-          <select id="user_id" name="user_id" value={formData.user_id || ''} onChange={handleChange} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
+          <select id="user_id" name="user_id" value={formData.user_id || ''} onChange={handleChange} className="mt-1 block w-full rounded-md shadow-sm text-black border border-[#808080] caret-black">
             {dropdowns?.users.map(user => (
               <option key={user.user_id} value={user.user_id}>{user.user_name}</option>
             ))}
           </select>
         </div>
         <div>
-          <label htmlFor="project_id">Project</label>
-          <select id="project_id" name="project_id" value={formData.project_id || ''} onChange={handleChange} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm">
+          <label htmlFor="project_id" className="block text-sm font-medium text-gray-700">Project</label>
+          <select id="project_id" name="project_id" value={formData.project_id || ''} onChange={handleChange} className="mt-1 block w-full rounded-md shadow-sm text-black border border-[#808080] caret-black">
             {dropdowns?.projects.map(p => (
               <option key={p.project_id} value={p.project_id}>{p.project_name}</option>
             ))}
           </select>
         </div>
         <div>
-          <label htmlFor="created_at">Date</label>
-          <input type="datetime-local" id="created_at" name="created_at" value={formData.created_at ? new Date(formData.created_at).toISOString().slice(0, 16) : ''} onChange={handleChange} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm" />
+          <label htmlFor="created_at" className="block text-sm font-medium text-gray-700">Date</label>
+          <input type="datetime-local" id="created_at" name="created_at" value={formData.created_at ? new Date(formData.created_at).toISOString().slice(0, 16) : ''} onChange={handleChange} className="mt-1 block w-full rounded-md shadow-sm text-black border border-[#808080] caret-black" />
         </div>
       </div>
 
       {/* 分類セクション */}
       <div className="border-b pb-8">
-        <h2 className="text-lg font-semibold mb-4">Classification</h2>
+        <h2 className="text-lg font-semibold mb-4 text-gray-700">Classification</h2>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           <div>
-            <label htmlFor="classification.kingdom">Kingdom</label>
-            <input type="text" id="classification.kingdom" name="classification.kingdom" value={formData.classification?.kingdom || ''} onChange={handleChange} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm" />
+            <label htmlFor="classification.kingdom" className="block text-sm font-medium text-gray-700">Kingdom</label>
+            <input type="text" id="classification.kingdom" name="classification.kingdom" value={formData.classification?.kingdom || ''} onChange={handleChange} className="mt-1 block w-full rounded-md shadow-sm text-black border border-[#808080] caret-black" />
           </div>
           <div>
-            <label htmlFor="classification.phylum">Phylum</label>
-            <input type="text" id="classification.phylum" name="classification.phylum" value={formData.classification?.phylum || ''} onChange={handleChange} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm" />
+            <label htmlFor="classification.phylum" className="block text-sm font-medium text-gray-700">Phylum</label>
+            <input type="text" id="classification.phylum" name="classification.phylum" value={formData.classification?.phylum || ''} onChange={handleChange} className="mt-1 block w-full rounded-md shadow-sm text-black border border-[#808080] caret-black" />
           </div>
 	  <div>
-            <label htmlFor="classification.phylum">class</label>
-            <input type="text" id="classification.class" name="classification.class" value={formData.classification?.class || ''} onChange={handleChange} className="mt-1 block w-full rounded-md border-gray-300 shadow-sm" />
+            <label htmlFor="classification.class" className="block text-sm font-medium text-gray-700">class</label>
+            <input type="text" id="classification.class" name="classification.class" value={formData.classification?.class || ''} onChange={handleChange} className="mt-1 block w-full rounded-md shadow-sm text-black border border-[#808080] caret-black" />
           </div>
 
 
