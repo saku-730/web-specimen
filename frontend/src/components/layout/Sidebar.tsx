@@ -38,7 +38,14 @@ const Sidebar = () => {
           onClick={() => setIsOpen(!isOpen)} 
           className="p-6 text-gray-600 hover:text-gray-900"
         >
-          {isOpen ? <X size={24} /> : <Menu size={24} />}
+          {isOpen ? (
+            <div className="flex items-center">
+              <X size={24} />
+              <span className="ml-2 text-lg">Menu</span>
+            </div>
+          ) : (
+            <Menu size={24} />
+          )}
         </button>
       </div>
 

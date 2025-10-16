@@ -126,7 +126,6 @@ type OccurrenceCreate struct {
 	Identification *IdentificationCreate `json:"identification"`
 }
 
-// ClassificationCreate は分類情報の部分構造なのだ
 type ClassificationCreate struct {
 	Species *string `json:"species"`
 	Genus   *string `json:"genus"`
@@ -138,7 +137,6 @@ type ClassificationCreate struct {
 	Others  *string `json:"others"`
 }
 
-// ObservationCreate は観察情報の部分構造なのだ
 type ObservationCreate struct {
 	ObservationUserID   *uint       `json:"observation_user_id"`
 	ObservationMethodID *uint       `json:"observation_method_id"`
@@ -146,7 +144,6 @@ type ObservationCreate struct {
 	ObservedAt          *time.Time `json:"observed_at"`
 }
 
-// SpecimenCreate は標本情報の部分構造なのだ
 type SpecimenCreate struct {
 	SpecimenUserID    *uint       `json:"specimen_user_id"`
 	SpecimenMethodsID *uint       `json:"specimen_methods_id"`
@@ -155,7 +152,6 @@ type SpecimenCreate struct {
 	CollectionID      *string    `json:"collection_id"`
 }
 
-// IdentificationCreate は同定情報の部分構造なのだ
 type IdentificationCreate struct {
 	IdentificationUserID *uint       `json:"identification_user_id"`
 	IdentifiedAt         *time.Time `json:"identified_at"`
@@ -163,7 +159,7 @@ type IdentificationCreate struct {
 }
 
 
-
+// --- Occurrence Detail for /occurrence/{occurrence_id}
 type OccurrenceDetailResponse struct {
 	UserID         uint                    `json:"user_id"`
 	UserName       string                 `json:"user_name"`

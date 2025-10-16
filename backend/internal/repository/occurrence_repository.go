@@ -5,6 +5,7 @@ import (
 	"github.com/saku-730/web-specimen/backend/internal/entity"
 	"github.com/saku-730/web-specimen/backend/internal/model"
 	"gorm.io/gorm"
+	//"fmt"
 )
 
 // DropdownRepository はドロップダウンリストのデータ取得を定義するインターフェースなのだ
@@ -37,8 +38,7 @@ func (r *occurrenceRepository) GetDropdownLists() (*model.Dropdowns, error) {
 	if err := r.db.Model(&entity.User{}).Select("user_id, user_name").Find(&users).Error; err != nil {
 		return nil, err
 	}
-
-	// Projects テーブルから取得
+// Projects テーブルから取得
 	if err := r.db.Model(&entity.Project{}).Select("project_id, project_name").Find(&projects).Error; err != nil {
 		return nil, err
 	}
@@ -76,28 +76,45 @@ func (r *occurrenceRepository) GetDropdownLists() (*model.Dropdowns, error) {
 	return response, nil
 }
 
+
 func (r *occurrenceRepository) CreateOccurrence(tx *gorm.DB, occurrence *entity.Occurrence, classification *entity.ClassificationJSON, place *entity.Place, placeName *entity.PlaceNamesJSON, observation *entity.Observation, specimen *entity.Specimen, makeSpecimen *entity.MakeSpecimen, identification *entity.Identification) (*entity.Occurrence, error) {
-	if err := tx.Create(classification).Error; err != nil { return nil, err }
+	
+    // 1. Classification: 指示書が空っぽ(nil)でない場合だけ、作成処理を行うのだ
+	if classification != nil {
+		if err := tx.Create(classification).Error; err != nil { return nil, err }
+		// 作成に成功したら、occurrenceにIDを紐付ける
+		occurrence.ClassificationID = &classification.ClassificationID
+	}
 
-	if err := tx.Create(placeName).Error; err != nil { return nil, err }
-	place.PlaceNameID = &placeName.PlaceNameID
-	if err := tx.Create(place).Error; err != nil { return nil, err }
+	// 2. Place: 指示書が空っぽ(nil)でない場合だけ、作成処理を行うのだ
+	if place != nil && placeName != nil {
+		if err := tx.Create(placeName).Error; err != nil { return nil, err }
+		place.PlaceNameID = &placeName.PlaceNameID
+		if err := tx.Create(place).Error; err != nil { return nil, err }
+		// 作成に成功したら、occurrenceにIDを紐付ける
+		occurrence.PlaceID = &place.PlaceID
+	}
 
-	occurrence.ClassificationID = &classification.ClassificationID
-	occurrence.PlaceID = &place.PlaceID
+	// 3. Occurrence本体を作成する。ClassificationとPlaceのIDは、上でセットされたかnilのままになっている。
 	if err := tx.Create(occurrence).Error; err != nil { return nil, err }
 
-	observation.OccurrenceID = &occurrence.OccurrenceID
-	if err := tx.Create(observation).Error; err != nil { return nil, err }
+	// 4. Observation: 指示書が空っぽ(nil)でない場合だけ、作成処理を行うのだ
+	if observation != nil {
+		observation.OccurrenceID = &occurrence.OccurrenceID
+		if err := tx.Create(observation).Error; err != nil { return nil, err }
+	}
 
+	// 5. SpecimenとMakeSpecimen: このブロックは元からnilチェックがされていたので完璧なのだ！
 	if specimen != nil && makeSpecimen != nil {
 		specimen.OccurrenceID = &occurrence.OccurrenceID
 		if err := tx.Create(specimen).Error; err != nil { return nil, err }
+		
 		makeSpecimen.OccurrenceID = &occurrence.OccurrenceID
 		makeSpecimen.SpecimenID = &specimen.SpecimenID
 		if err := tx.Create(makeSpecimen).Error; err != nil { return nil, err }
 	}
 
+	// 6. Identification: 指示書が空っぽ(nil)でない場合だけ、作成処理を行うのだ
 	if identification != nil {
 		identification.OccurrenceID = &occurrence.OccurrenceID
 		if err := tx.Create(identification).Error; err != nil { return nil, err }
@@ -105,7 +122,6 @@ func (r *occurrenceRepository) CreateOccurrence(tx *gorm.DB, occurrence *entity.
 
 	return occurrence, nil
 }
-
 
 // Searchメソッドを実装
 func (r *occurrenceRepository) Search(query *model.SearchQuery) ([]entity.Occurrence, int64, error) {

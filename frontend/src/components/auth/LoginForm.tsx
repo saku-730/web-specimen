@@ -4,6 +4,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import Cookies from 'js-cookie';
 import { Mail, Lock } from "lucide-react";
 
 const LoginForm = () => {
@@ -21,7 +22,9 @@ const LoginForm = () => {
 
     try {
       // 1. Next.js自身が持つAPIルートにリクエストを送るのだ！
-      const res = await fetch('/api/login', { // ⬅️ 宛先を変更！
+      //const res = await fetch('/api/login', { // ⬅️ 宛先を変更！
+	const apiUrl = `${process.env.NEXT_PUBLIC_API_URL}/login`;
+        const res = await fetch(apiUrl, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
@@ -30,7 +33,13 @@ const LoginForm = () => {
       if (!res.ok) {
         throw new Error("Invalid email or password. Please try again.");
       }
-      
+      const data = await res.json();
+      const token = data.token;
+      Cookies.set('token', token, { 
+      expires: 1, // 1日間有効
+        // secure: true // 本番環境(https)ではこの行を有効にするのだ
+      });
+      localStorage.setItem("token", token); //////////
       // 2. ログイン成功！クッキーはサーバーがセットしてくれたので、ダッシュボードに移動するだけ！
       router.push("/");
       router.refresh(); // ⬅️ サーバーの状態を更新するために追加

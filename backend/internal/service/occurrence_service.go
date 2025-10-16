@@ -77,9 +77,7 @@ func (s *occurrenceService) GetDefaultValues(userID int) (*model.DefaultValues, 
 
 	response := &model.DefaultValues{
 		UserID:         entity.UserID,
-		UserName:       entity.UserName, // ポインタ型なのでデリファレンスするのだ
-		ProjectID:      entity.ProjectID,
-		ProjectName:    entity.ProjectName,
+		UserName:       entity.UserName, // ポインタ型なのでデリファレンスするのだ ProjectID:      entity.ProjectID, ProjectName:    entity.ProjectName,
 		IndividualID:   entity.IndividualID,
 		Lifestage:      entity.Lifestage,
 		Sex:            entity.Sex,
@@ -139,58 +137,99 @@ func formatTimezone(t *time.Time) *string {
 }
 
 
+
+
 func (s *occurrenceService) CreateOccurrence(req *model.OccurrenceCreate) (*entity.Occurrence, error) {
+    // --- 1. リクエストDTOを各Entityオブジェクトに変換 ---
 
-	classMap := map[string]interface{}{"species": req.Classification.Species, "genus": req.Classification.Genus, "family": req.Classification.Family, "order": req.Classification.Order, "class": req.Classification.Class, "phylum": req.Classification.Phylum, "kingdom": req.Classification.Kingdom, "others": req.Classification.Others}
-	classJSON, _ := json.Marshal(classMap)
-	classification := &entity.ClassificationJSON{ClassClassification: classJSON}
+	// まず、nilになる可能性のある変数をすべてnilで宣言しておくのだ。これが安全の基本！
+	var classification *entity.ClassificationJSON
+	var placeName *entity.PlaceNamesJSON
+	var place *entity.Place
+	var observation *entity.Observation
+	var specimen *entity.Specimen
+	var makeSpecimen *entity.MakeSpecimen
+	var identification *entity.Identification
 
-	placeNameMap := map[string]interface{}{"name": req.PlaceName}
-	placeNameJSON, _ := json.Marshal(placeNameMap)
-	placeName := &entity.PlaceNamesJSON{ClassPlaceName: placeNameJSON}
-	place := &entity.Place{Coordinates: &entity.Point{Lat: req.Latitude, Lng: req.Longitude}}
 
+	// 1. Classification: フロントエンドからデータが送られてきた場合のみ、entityを作成する。
+	if req.Classification != nil {
+		classMap := map[string]interface{}{
+			"species": req.Classification.Species, "genus": req.Classification.Genus, "family": req.Classification.Family, 
+			"order": req.Classification.Order, "class": req.Classification.Class, "phylum": req.Classification.Phylum, 
+			"kingdom": req.Classification.Kingdom, "others": req.Classification.Others,
+		}
+		classJSON, _ := json.Marshal(classMap)
+		classification = &entity.ClassificationJSON{ClassClassification: classJSON}
+	}
+
+	// 2. Place: 場所に関する情報が何か一つでも送られてきた場合のみ、entityを作成する。
+	if (req.PlaceName != nil && *req.PlaceName != "") || 
+	   (req.Latitude != nil && *req.Latitude != 0) || 
+	   (req.Longitude != nil && *req.Longitude != 0) {
+		
+		var name string
+		if req.PlaceName != nil {
+			name = *req.PlaceName
+		}
+		placeNameMap := map[string]interface{}{"name": name}
+		placeNameJSON, _ := json.Marshal(placeNameMap)
+		placeName = &entity.PlaceNamesJSON{ClassPlaceName: placeNameJSON}
+
+		place = &entity.Place{Coordinates: &entity.Point{Lat: req.Latitude, Lng: req.Longitude}}
+	}
+
+	// 3. Observation: データが送られてきた場合のみ、entityを作成する。
+	if req.Observation != nil {
+		observation = &entity.Observation{
+			UserID:              req.Observation.ObservationUserID,
+			ObservationMethodID: req.Observation.ObservationMethodID,
+			Behavior:            req.Observation.Behavior,
+			ObservedAt:          req.Observation.ObservedAt,
+			Timezone:            formatTimezone(req.Observation.ObservedAt), // formatTimezone内でnilチェック済み
+		}
+	}
+	
+	// 4. Specimen: データが送られてきた場合のみ、entityを作成する。
+	if req.Specimen != nil {
+		specimen = &entity.Specimen{
+			SpecimenMethodID: req.Specimen.SpecimenMethodsID,
+			InstitutionID:    req.Specimen.InstitutionID,
+			CollectionID:     req.Specimen.CollectionID,
+		}
+		makeSpecimen = &entity.MakeSpecimen{
+			UserID:           req.Specimen.SpecimenUserID,
+			SpecimenMethodID: req.Specimen.SpecimenMethodsID,
+			Date:             req.Specimen.CreatedAt,
+			Timezone:         formatTimezone(req.Specimen.CreatedAt), // formatTimezone内でnilチェック済み
+		}
+	}
+
+	// 5. Identification: データが送られてきた場合のみ、entityを作成する。
+	if req.Identification != nil {
+		identification = &entity.Identification{
+			UserID:          req.Identification.IdentificationUserID,
+			SourceInfo:      req.Identification.SourceInfo,
+			IdentificatedAt: req.Identification.IdentifiedAt,
+			Timezone:        formatTimezone(req.Identification.IdentifiedAt), // formatTimezone内でnilチェック済み
+		}
+	}
+
+    // 6. 最後に、必須項目とトップレベルの任意項目でoccurrenceを作る。
+    //    reqの各フィールドはポインタなので、そのまま代入すればOK。
 	occurrence := &entity.Occurrence{
 		ProjectID:    req.ProjectID,
-		UserID:       &req.UserID,
+		UserID:       &req.UserID, // UserIDは必須項目なのでポインタではない
 		IndividualID: req.IndividualID,
 		Lifestage:    req.Lifestage,
 		Sex:          req.Sex,
-		BodyLength:   req.BodyLength, 
+		BodyLength:   req.BodyLength,
 		LanguageID:   req.LanguageID,
 		Note:         req.Note,
-		CreatedAt:    req.CreatedAt,  
-		Timezone:     formatTimezone(req.CreatedAt),
+		CreatedAt:    req.CreatedAt,
+		Timezone:     formatTimezone(req.CreatedAt), // CreatedAtは必須と仮定
 	}
 	
-	observation := &entity.Observation{
-		UserID: req.Observation.ObservationUserID, 
-		ObservationMethodID: req.Observation.ObservationMethodID, 
-		Behavior: req.Observation.Behavior, 
-		ObservedAt: req.Observation.ObservedAt, 
-		Timezone: formatTimezone(req.Observation.ObservedAt),
-	}
-	
-	specimen := &entity.Specimen{
-		SpecimenMethodID: req.Specimen.SpecimenMethodsID, 
-		InstitutionID: req.Specimen.InstitutionID,
-		CollectionID: req.Specimen.CollectionID,
-	}
-
-	makeSpecimen := &entity.MakeSpecimen{
-		UserID: req.Specimen.SpecimenUserID, 
-		SpecimenMethodID: req.Specimen.SpecimenMethodsID, 
-		Date: req.Specimen.CreatedAt, 
-		Timezone: formatTimezone(req.Specimen.CreatedAt),
-	}
-
-	identification := &entity.Identification{
-		UserID: req.Identification.IdentificationUserID, 
-		SourceInfo: req.Identification.SourceInfo, 
-		IdentificatedAt: req.Identification.IdentifiedAt, 
-		Timezone: formatTimezone(req.Identification.IdentifiedAt),
-	}
-
 	var createdOccurrence *entity.Occurrence
 
 	// --- 2. トランザクションを開始してRepositoryを呼び出す ---
@@ -206,6 +245,8 @@ func (s *occurrenceService) CreateOccurrence(req *model.OccurrenceCreate) (*enti
 
 	return createdOccurrence, nil
 }
+
+
 
 
 func (s *occurrenceService) AttachFiles(occurrenceID uint, userID uint, files []*multipart.FileHeader) ([]string, error) {
