@@ -124,15 +124,17 @@ func (r *occurrenceRepository) CreateOccurrence(tx *gorm.DB, occurrence *entity.
 }
 
 // Searchメソッドを実装
+
 func (r *occurrenceRepository) Search(query *model.SearchQuery) ([]entity.Occurrence, int64, error) {
 	var occurrences []entity.Occurrence
 	var total int64
 
-	// ベースとなるクエリを組み立てる。
+	// ベースとなるクエリ
 	tx := r.db.Model(&entity.Occurrence{}).
 		Joins("LEFT JOIN users ON users.user_id = occurrence.user_id").
 		Joins("LEFT JOIN projects ON projects.project_id = occurrence.project_id").
-		Joins("LEFT JOIN places ON places.place_id = occurrence.place_id").
+		// ここ！ coordinates を ST_AsText() でテキストに変換
+		Joins("LEFT JOIN (SELECT place_id, ST_AsText(coordinates) AS coordinates, place_name_id, accuracy FROM places) AS places ON places.place_id = occurrence.place_id").
 		Joins("LEFT JOIN place_names_json ON place_names_json.place_name_id = places.place_name_id").
 		Joins("LEFT JOIN classification_json ON classification_json.classification_id = occurrence.classification_id").
 		Joins("LEFT JOIN observations ON observations.occurrence_id = occurrence.occurrence_id").
@@ -140,8 +142,7 @@ func (r *occurrenceRepository) Search(query *model.SearchQuery) ([]entity.Occurr
 		Joins("LEFT JOIN specimen ON specimen.specimen_id = make_specimen.specimen_id").
 		Joins("LEFT JOIN identifications ON identifications.occurrence_id = occurrence.occurrence_id")
 
-
-	// --- クエリパラメータに基づいて動的にWHERE句を追加 ---
+	// --- WHERE句（動的フィルタリング） ---
 	if query.UserID != "" { tx = tx.Where("occurrence.user_id = ?", query.UserID) }
 	if query.OccurrenceID != "" { tx = tx.Where("occurrence.occurrence_id = ?", query.OccurrenceID) }
 	if query.ProjectID != "" { tx = tx.Where("occurrence.project_id = ?", query.ProjectID) }
@@ -170,18 +171,14 @@ func (r *occurrenceRepository) Search(query *model.SearchQuery) ([]entity.Occurr
 	if query.CollectionID != "" { tx = tx.Where("specimen.collection_id LIKE ?", "%"+query.CollectionID+"%") }
 	if query.IdentificationUserID != "" { tx = tx.Where("identifications.user_id = ?", query.IdentificationUserID) }
 	if query.IdentifiedStart != "" && query.IdentifiedEnd != "" { tx = tx.Where("identifications.identificated_at BETWEEN ? AND ?", query.IdentifiedStart, query.IdentifiedEnd) }
-	
 
-	//if err := tx.Count(&total).Error; err != nil {
-	//	return nil, 0, err
-	//}
-
+	// --- 件数カウント ---
 	countTx := tx.Session(&gorm.Session{})
 	if err := countTx.Select("COUNT(DISTINCT occurrence.occurrence_id)").Count(&total).Error; err != nil {
 	    return nil, 0, err
 	}
 
-	//pagenation
+	// --- ページネーション ---
 	offset := (query.Page - 1) * query.PerPage
 	dataTx := tx.Session(&gorm.Session{})
 	err := dataTx.Limit(query.PerPage).Offset(offset).

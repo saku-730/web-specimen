@@ -8,7 +8,9 @@ require (
 	github.com/golang-jwt/jwt/v5 v5.3.0
 	github.com/spf13/viper v1.21.0
 	github.com/stretchr/testify v1.11.1
+	github.com/twpayne/go-geom v1.6.1
 	golang.org/x/crypto v0.43.0
+	gorm.io/datatypes v1.2.7
 	gorm.io/driver/postgres v1.6.0
 	gorm.io/gorm v1.31.0
 )
@@ -66,6 +68,5 @@ require (
 	golang.org/x/tools v0.37.0 // indirect
 	google.golang.org/protobuf v1.36.9 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
-	gorm.io/datatypes v1.2.7 // indirect
 	gorm.io/driver/mysql v1.5.6 // indirect
 )
