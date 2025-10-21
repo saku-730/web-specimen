@@ -232,3 +232,6 @@ type AttachmentDetail struct {
 	FileName     *string `json:"file_name"`
 	Note	     *string `json:"note"`
 }
+
+
+
