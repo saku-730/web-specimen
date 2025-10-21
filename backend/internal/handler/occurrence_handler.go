@@ -17,6 +17,7 @@ type OccurrenceHandler interface {
 	AttachFiles(c *gin.Context)
 	SearchPage(c *gin.Context)
 	GetOccurrenceDetail(c *gin.Context)
+	UpdateOccurrence(c *gin.Context)
 }
 
 type occurrenceHandler struct {
@@ -161,3 +162,35 @@ func (h *occurrenceHandler) GetOccurrenceDetail(c *gin.Context) {
 
 	c.JSON(http.StatusOK, detail)
 }
+
+
+func (h *occurrenceHandler) updateOccurrence(c *gin.Context) {
+	// get ID from path paramate
+	idStr := c.Param("occurrence_id")
+	id, err := strconv.ParseUint(idStr, 10, 32)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid ID format"})
+		return
+	}
+
+	// binding request body
+	var req model.OccurrenceUpdate
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid request body: " + err.Error()})
+		return
+	}
+    
+	// to service
+	updated, err := h.service.UpdateOccurrence(uint(id), &req)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			c.JSON(http.StatusNotFound, gin.H{"error": "not found occurrence the data"})
+		} else {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to update: " + err.Error()})
+		}
+		return
+	}
+
+	c.JSON(http.StatusOK, updated)
+}
+

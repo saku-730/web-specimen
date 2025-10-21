@@ -36,6 +36,7 @@ func SetupRouter(
 			secure.POST("/create/:occurrence_id/attachments", occHandler.AttachFiles)
 			secure.GET("/search", occHandler.SearchPage)
 			secure.GET("/occurrences/:occurrence_id", occHandler.GetOccurrenceDetail)
+			secure.PUT("/occurrences/:occurrence_id", occHandler.UpdateOccurrence)
 		}
 
 	}

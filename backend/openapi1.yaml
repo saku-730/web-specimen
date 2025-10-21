@@ -349,14 +349,14 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Occurrence'
+              $ref: '#/components/schemas/OccurrencePut'
       responses:
         "200":
           description: "Success Update occurrence data and return updated occurrence data value"
           content:
             application/json:
               schema:
-                $ref : '#/components/schemas/Occurrence'
+                $ref : '#/components/schemas/OccurrencePut'
         "400":
           $ref: '#/components/responses/BadRequest'
         "500":
@@ -1107,6 +1107,57 @@ components:
           $ref: '#/components/schemas/OccurrenceSpecimen'
         identification:
           $ref: '#/components/schemas/OccurrenceIdentification'
+    OccurrencePut:
+      type: object
+      properties:
+        user_id:
+          type: integer
+          example: 1
+        project_id:
+          type: integer
+          example: 1
+        individual_id:
+          type: integer
+          example: 1
+        lifestage:
+          type: string
+          example: "adult"
+        sex:
+          type: string
+          example: "male"
+        body_length:
+          type: string
+          example: "10mm"
+        created_at:
+          type: string
+          format: date-time
+          example: "2024-01-01T00:00:00Z"
+        language_id:
+          type: integer
+          example: 1
+        latitude:
+          type: number
+          format: float
+          example: 35.6895
+        longitude:
+          type: number
+          format: float
+          example: 139.6917
+        place_name:
+          type: string
+          example: "Tokyo shinjuku"
+        note:
+          type: string
+          example: "sample note"
+        classification:
+          $ref: '#/components/schemas/Classification'
+        observation:
+          $ref: '#/components/schemas/OccurrenceObservations'
+        specimen:
+          $ref: '#/components/schemas/OccurrenceSpecimens'
+        identification:
+          $ref: '#/components/schemas/OccurrenceIdentifications'
+  
     Occurrences:
       type: array
       description: "list of occurrences"
@@ -1445,6 +1496,33 @@ components:
         observation_user_id:
           type: integer
           example: 1
+    OccurrenceObsPut:
+      type: object
+      properties:
+        observation_id:
+          type: integer
+          example: 1
+        observation_method_id:
+          type: integer
+          example: 1
+        behavior:
+          type: string
+          example: "sample behavior"
+        observed_at:
+          type: string
+          format: date-time
+          example: "2024-01-01T00:00:00Z"
+        observation_user_id:
+          type: integer
+          example: 1
+
+
+    OccurrenceObservations:
+      type: array
+      description: "list of occurrence observations"
+      items:
+        $ref: '#/components/schemas/OccurrenceObsPut'
+
     OccurrenceSpecimen:
       type: object
       properties:
@@ -1464,6 +1542,36 @@ components:
         collection_id:
           type: string
           example: "C-001"
+
+    OccurrenceSpecimenPut:
+      type: object
+      properties:
+        specimen_id:
+          type: integer
+          example: 1  
+        specimen_user_id:
+          type: integer
+          example: 1
+        specimen_methods_id:
+          type: integer
+          example: 1
+        created_at:
+          type: string
+          format: date-time
+          example: "2024-01-01T00:00:00Z"
+        institution_id:
+          type: integer
+          example: 1
+        collection_id:
+          type: string
+          example: "C-001"
+
+    OccurrenceSpecimens:
+      type: array
+      description: "list of occurrence specimens"
+      items:
+        $ref: '#/components/schemas/OccurrenceSpecimenPut'
+
     OccurrenceIdentification:
       type: object
       properties:
@@ -1477,6 +1585,29 @@ components:
         source_info:
           type: string
           example: "sample identification sorce paper"
+
+    OccurrenceIdentPut:
+      type: object
+      properties:
+        identification_id:
+          type: integer
+          example: 1
+        identification_user_id:
+          type: integer
+          example: 1
+        identified_at:
+          type: string
+          format: date-time
+          example: "2024-01-01T00:00:00Z"
+        source_info:
+          type: string
+          example: "sample identification sorce paper"
+
+    OccurrenceIdentifications:
+      type: array
+      description: "list of occurrence identifications"   
+      items:
+        $ref: '#/components/schemas/OccurrenceIdentPut'
 
     # Misc Schemas for Dropdown/Defaults
     Dropdown_list:
